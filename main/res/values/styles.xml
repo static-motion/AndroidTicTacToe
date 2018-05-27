@@ -6,5 +6,7 @@
 
     <style name="GridBlock" parent="android:Widget.Button">
         <item name="android:background">@color/colorWhite</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:maxHeight">0dp</item>
     </style>
 </resources>
