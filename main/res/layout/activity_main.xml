@@ -8,7 +8,7 @@
     android:background="@color/colorWhite"
     >
     <!-- Game Board -->
-    <com.example.tictactoe.Grid
+    <android.support.v7.widget.GridLayout
         android:id="@+id/grid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -104,7 +104,7 @@
             app:layout_column="2"
             app:layout_rowWeight="1" />
 
-    </com.example.tictactoe.Grid>
+    </android.support.v7.widget.GridLayout>
     <!-- Horizontal Grid -->
     <View
         android:id="@+id/border_top_hor"
