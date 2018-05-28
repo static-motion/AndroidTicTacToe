@@ -3,6 +3,9 @@ package com.example.tictactoe;
 import android.view.View;
 import android.widget.Button;
 
+//Button wrapper class. It contains the button's coordinates in the grid
+//allowing for a convenient way to update the game board matrices.
+
 public class GridCell {
 
     private Button mCell;

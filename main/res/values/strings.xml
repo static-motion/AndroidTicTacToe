@@ -1,9 +1,12 @@
 <resources>
     <string name="app_name">Tic Tac Toe</string>
     <string name="game_title">TIC TAC TOE!</string>
-    <string name="score">Score:</string>
+    <string name="score">Score</string>
     <string name="naughts">NAUGHTS</string>
     <string name="crosses">CROSSES</string>
     <string name="zero">0</string>
-    <string name="starting_tip">Click on the grid to play!</string>
+    <string name="starting_tip">Crosses go first!</string>
+    <string name="crosses_win_message">Crosses win!</string>
+    <string name="naughts_win_message">Naughts win!</string>
+    <string name="tie_endgame_message">It\'s a tie!</string>
 </resources>

@@ -5,8 +5,19 @@
     </style>
 
     <style name="GridBlock" parent="android:Widget.Button">
-        <item name="android:background">@color/colorWhite</item>
+        <item name="android:background">@color/colorBlack</item>
         <item name="android:minHeight">0dp</item>
         <item name="android:maxHeight">0dp</item>
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
+    <style name="GridLine">
+        <item name="android:background">@color/colorWhite</item>
+    </style>
+    <style name="TextColor">
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+    <style name="Statistics">
+        <item name="android:background">@color/colorBlack</item>
     </style>
 </resources>
