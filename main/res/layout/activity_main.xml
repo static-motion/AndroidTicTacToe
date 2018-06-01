@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:background="@color/colorWhite"
+    tools:context=".GameActivity"
+    style="@style/Background"
     >
     <!-- Game Board -->
     <android.support.v7.widget.GridLayout
@@ -18,7 +18,7 @@
         android:padding="0px"
         >
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.GridField
             android:id="@+id/btn_1"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -27,7 +27,7 @@
             app:layout_rowWeight="1"
             />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.GridField
             android:id="@+id/btn_2"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -35,7 +35,7 @@
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.GridField
             android:id="@+id/btn_3"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -43,7 +43,7 @@
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.GridField
             android:id="@+id/btn_4"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -53,7 +53,7 @@
             app:layout_column="0"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.GridField
             android:id="@+id/btn_5"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -63,7 +63,7 @@
             app:layout_column="1"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.GridField
             android:id="@+id/btn_6"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -73,7 +73,7 @@
             app:layout_column="2"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.GridField
             android:id="@+id/btn_7"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -83,7 +83,7 @@
             app:layout_column="0"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.GridField
             android:id="@+id/btn_8"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -93,7 +93,7 @@
             app:layout_column="1"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.GridField
             android:id="@+id/btn_9"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -199,53 +199,42 @@
             />
 
         <TextView
-            style="@style/TextColor"
-            android:id="@+id/title"
-            android:gravity="center"
-            android:textSize="50sp"
-            android:textStyle="bold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/game_title"
-            />
-
-        <TextView
-            style="@style/TextColor"
+            style="@style/TextStyle"
             android:id="@+id/score"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/score"
-            android:textSize="30sp"
-            app:layout_constraintTop_toBottomOf="@id/title"
+            android:textSize="35sp"
+            app:layout_constraintTop_toTopOf="parent"
             />
 
         <TextView
-            style="@style/TextColor"
+            style="@style/TextStyle"
             android:id="@+id/naughts"
             android:textSize="20sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/naughts"
             app:layout_constraintTop_toBottomOf="@id/score"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/guideline_hor_left"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/guideline_hor_right"
             />
 
         <TextView
-            style="@style/TextColor"
+            style="@style/TextStyle"
             android:id="@+id/crosses"
             android:textSize="20sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/crosses"
             app:layout_constraintTop_toBottomOf="@id/score"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/guideline_hor_right"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/guideline_hor_left"
             />
 
         <TextView
-            style="@style/TextColor"
+            style="@style/TextStyle"
             android:id="@+id/naughtsScore"
             android:textSize="70sp"
             android:layout_width="wrap_content"
@@ -258,7 +247,7 @@
 
             />
         <TextView
-            style="@style/TextColor"
+            style="@style/TextStyle"
             android:id="@+id/crossesScore"
             android:textSize="70sp"
             android:layout_width="wrap_content"
@@ -271,7 +260,7 @@
             />
 
         <TextView
-            style="@style/TextColor"
+            style="@style/TextStyle"
             android:id="@+id/status"
             android:text="@string/starting_tip"
             android:textSize="15sp"

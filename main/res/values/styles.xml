@@ -1,20 +1,28 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    </style>
+
+    <style name="AppTheme.SplashBackground" parent="AppTheme">
+        <item name="android:background">@color/colorBlack</item>
+    </style>
+
+    <style name="Background">
+        <item name="android:background">@color/colorBlack</item>
     </style>
 
     <style name="GridBlock" parent="android:Widget.Button">
         <item name="android:background">@color/colorBlack</item>
         <item name="android:minHeight">0dp</item>
         <item name="android:maxHeight">0dp</item>
-        <item name="android:layout_margin">5dp</item>
+        <item name="android:layout_margin">10dp</item>
     </style>
-
+    
     <style name="GridLine">
         <item name="android:background">@color/colorWhite</item>
     </style>
-    <style name="TextColor">
+    <style name="TextStyle">
         <item name="android:textColor">@color/colorWhite</item>
     </style>
     <style name="Statistics">

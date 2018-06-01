@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Tic Tac Toe</string>
     <string name="game_title">TIC TAC TOE!</string>
-    <string name="score">Score</string>
+    <string name="score">SCORE</string>
     <string name="naughts">NAUGHTS</string>
     <string name="crosses">CROSSES</string>
     <string name="zero">0</string>
@@ -9,4 +9,8 @@
     <string name="crosses_win_message">Crosses win!</string>
     <string name="naughts_win_message">Naughts win!</string>
     <string name="tie_endgame_message">It\'s a tie!</string>
+    <string name="splash_screen_img_description">Splash screen image vector.</string>
+    <string name="splash_description">A project by Valentin Mihov. Source code available on https://github.com/static-motion</string>
+    <string name="game_logo_description">Game Logo</string>
+    <string name="start_game">Start game</string>
 </resources>
