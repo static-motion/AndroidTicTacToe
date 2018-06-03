@@ -1,9 +1,13 @@
 package com.example.tictactoe;
 
-public class Player {
+import java.io.Serializable;
+
+public class Player implements Serializable{
     private String mName;
     private char mFigure;
     private int mFigureDrawable;
+    private int mWinsCount;
+    private int mHighlightedFigure;
 
     Player(String name){
         mName = name;
@@ -13,9 +17,14 @@ public class Player {
         return mName;
     }
 
-    public void setFigure(int id, char figure){
+    public void setFigure(int id, char figure, int highlightedFigure){
         mFigureDrawable = id;
         mFigure = figure;
+        mHighlightedFigure = highlightedFigure;
+    }
+
+    public int getHighlightedFigure(){
+        return mHighlightedFigure;
     }
 
     public int getFigureDrawable(){
@@ -24,5 +33,13 @@ public class Player {
 
     public char getFigureChar(){
         return mFigure;
+    }
+
+    public int getWinsCount(){
+        return mWinsCount;
+    }
+
+    public void increaseWinsCount(){
+        mWinsCount++;
     }
 }

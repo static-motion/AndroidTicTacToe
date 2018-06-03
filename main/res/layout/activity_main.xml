@@ -235,7 +235,7 @@
 
         <TextView
             style="@style/TextStyle"
-            android:id="@+id/naughtsScore"
+            android:id="@+id/crossesScore"
             android:textSize="70sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -248,7 +248,7 @@
             />
         <TextView
             style="@style/TextStyle"
-            android:id="@+id/crossesScore"
+            android:id="@+id/naughtsScore"
             android:textSize="70sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -263,7 +263,7 @@
             style="@style/TextStyle"
             android:id="@+id/status"
             android:text="@string/starting_tip"
-            android:textSize="15sp"
+            android:textSize="25sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintRight_toLeftOf="@id/crossesScore"

@@ -1,25 +1,19 @@
 package com.example.tictactoe;
 
 public class Winner {
-    private char mWinningPiece;
-    private int mStartPos;
-    private WinningPosition mWinningPosition;
+    private Player mPlayer;
+    private int[] mWinningStreakCoordinates;
 
-    Winner(char winningPiece, int startPos, WinningPosition winningPosition){
-        mWinningPiece = winningPiece;
-        mStartPos = startPos;
-        mWinningPosition = winningPosition;
+    Winner(Player player, int[] coordinates){
+        mPlayer = player;
+        mWinningStreakCoordinates = coordinates;
     }
 
-    public WinningPosition getWinningPosition() {
-        return mWinningPosition;
+    public Player getPlayer() {
+        return mPlayer;
     }
 
-    public char getWinningPiece(){
-        return mWinningPiece;
-    }
-
-    public int getStartingPosition(){
-        return mStartPos;
+    public int[] getWinningStreakCoordinates(){
+        return mWinningStreakCoordinates;
     }
 }

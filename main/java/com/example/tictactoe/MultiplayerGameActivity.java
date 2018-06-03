@@ -6,14 +6,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class MultiplayerGameActivity extends AppCompatActivity implements View.OnClickListener{
+public class MultiplayerGameActivity extends AppCompatActivity implements View.OnClickListener, UserInterface{
 
-    private final char mCrossChar = 'x';
-    private final char mCircleChar = 'o';
-    private int mCrossesWinsCount = 0;
-    private int mNaughtsWinsCount = 0;
-    private TextView mNaughtsScore;
     private TextView mCrossesScore;
+    private TextView mNaughtsScore;
     private TextView mStatus;
     MultiplayerGameManager manager;
 
@@ -46,11 +42,9 @@ public class MultiplayerGameActivity extends AppCompatActivity implements View.O
             manager.resetGame();
             return;
         }
-        Winner winner = manager.processMove(v.getId());
+        new GameTask(this, manager).execute(v.getId());
         //Update the UI if a winner is found or 9 turns have passed (the maximum possible in tic tac toe)
-        if(winner != null || manager.getGameState() == GameState.Finished){
-            updateScore(winner);
-        }
+
     }
 
     @Override
@@ -62,22 +56,19 @@ public class MultiplayerGameActivity extends AppCompatActivity implements View.O
 
     //Updates the score depending on which figure won and update the status text.
     //If the game ended in a tie it just does the latter.
-    private void updateScore(Winner winner) {
+    public void updateScore(Winner winner) {
         if(winner != null){
-            if(winner.getWinningPiece() == mCrossChar){
-                mCrossesScore.setText(String.valueOf(++mCrossesWinsCount));
-                mStatus.setText(R.string.crosses_win_message);
-                manager.highlightWinningSequence(winner);
-            }
-            else if(winner.getWinningPiece() == mCircleChar){
-                mNaughtsScore.setText(String.valueOf(++mNaughtsWinsCount));
-                mStatus.setText(R.string.naughts_win_message);
-                manager.highlightWinningSequence(winner);
-            }
+            Player player = winner.getPlayer();
+            mCrossesScore.setText(String.valueOf(player.getWinsCount()));
+            mStatus.setText(String.format("%s wins!", player.getName()));
+            manager.highlightWinningSequence(winner);
         }
         else {
             mStatus.setText(R.string.tie_endgame_message);
         }
     }
 
+    public void drawFigure(GridCell cell) {
+        manager.drawFigure(cell);
+    }
 }

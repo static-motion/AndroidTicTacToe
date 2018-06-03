@@ -4,7 +4,7 @@ public interface TicTacToeGameManager {
 
     void registerCell(int id, GridCell cell);
 
-    Winner processMove(int id);
+    GridCell processMove(int id);
 
     Winner checkForWinner();
 

@@ -33,7 +33,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
 
     private boolean isHost;
     private String mOpponentEndpointId;
-    private boolean isOpponentsTurn = true;
+    private boolean mIsOpponentsTurn = true;
     private boolean[][] mTaken = new boolean[3][3];
     private char[][] mBoard = new char[3][3];
     private int[][] mIds = new int[3][3];
@@ -68,8 +68,6 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
 
         }
     };
-
-
 
     private final EndpointDiscoveryCallback mEndpointDiscoveryCallback = new EndpointDiscoveryCallback() {
         @Override
@@ -143,13 +141,13 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         mOpponent = new Player(opponentName);
         mPlayer = new Player("Pesho");
         if(isHost){
-            mPlayer.setFigure(mCross, mCrossChar);
-            mOpponent.setFigure(mCircle, mCircleChar);
-            isOpponentsTurn = false;
+            mPlayer.setFigure(mCross, mCrossChar, mCrossWinner);
+            mOpponent.setFigure(mCircle, mCircleChar, mCrossWinner);
+            mIsOpponentsTurn = false;
         }
         else {
-            mPlayer.setFigure(mCircle, mCircleChar);
-            mOpponent.setFigure(mCross, mCrossChar);
+            mPlayer.setFigure(mCircle, mCircleChar, mCrossWinner);
+            mOpponent.setFigure(mCross, mCrossChar, mCrossWinner);
         }
     }
 
@@ -204,39 +202,33 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
                     }});
     }
 
-    public void stopAllEndpoints(){
-        mConnectionsClient.stopAllEndpoints();
-    }
-
     @Override
     public void registerCell(int id, GridCell cell){
         this.mCells.put(id, cell);
-        registerId(id);
-    }
-
-    private void registerId(int id) {
         mIds[mRowId][mColId++] = id;
         if(mColId > 2){
             mRowId++;
             mColId = 0;
         }
     }
+
     @Override
-    public Winner processMove(int id) {
-        if(isOpponentsTurn){
-            return null;
-        }
+    public GridCell processMove(int id) {
+
         GridCell clickedCell = mCells.get(id);
         int row = clickedCell.getRow();
         int col = clickedCell.getCol();
-        if(!mTaken[row][col]){
-            isOpponentsTurn = true;
-            updateCell(clickedCell.getCell(), row, col);
-            mTurnsCount++;
-            updateGameState();
-            sendMoveCoordinates(row, col);
+
+        if(mIsOpponentsTurn || mTaken[row][col]){
+            return null;
         }
-        return checkForWinner();
+
+        mIsOpponentsTurn = true;
+        updateCell(clickedCell.getCell(), row, col);
+        mTurnsCount++;
+        updateGameState();
+        sendMoveCoordinates(row, col);
+        return clickedCell;
     }
 
     private void processOpponentMove(String coordinates) {
@@ -246,7 +238,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         updateCell(clickedCell.getCell(), row, col);
         mTurnsCount++;
         updateGameState();
-        isOpponentsTurn = false;
+        mIsOpponentsTurn = false;
 
     }
 
@@ -264,15 +256,27 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
     //Place vector background on clicked button, mark the position as taken
     //and put the corresponding char in the mBoard matrix.
     private void updateCell(Button button, int row, int col) {
-        if (!isOpponentsTurn) {
-            button.setBackgroundResource(mPlayer.getFigureDrawable());
+        if (!mIsOpponentsTurn) {
             mBoard[row][col] = mPlayer.getFigureChar();
         } else {
-            button.setBackgroundResource(mOpponent.getFigureDrawable());
             mBoard[row][col] = mOpponent.getFigureChar();
         }
         mTaken[row][col] = true;
     }
+
+    public void drawFigure(GridCell clickedCell){
+        if (!mIsOpponentsTurn) {
+            clickedCell.getCell().setBackgroundResource(mPlayer.getFigureDrawable());
+        }
+        else {
+            clickedCell.getCell().setBackgroundResource(mOpponent.getFigureDrawable());
+        }
+    }
+
+    public boolean isOpponentsTurn(){
+        return mIsOpponentsTurn;
+    }
+
     @Override
     public Winner checkForWinner() {
         //5 turns is the minimum turns count required for the game to be won.
@@ -285,61 +289,74 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
             //Rows
             if (mBoard[i][0] == mBoard[i][1] && mBoard[i][1] == mBoard[i][2] && mBoard[i][0] != mDefault) {
                 mGameState = GameState.Finished;
-                return new Winner(mBoard[i][0], i, WinningPosition.Row);
+                if(mBoard[i][0] == mPlayer.getFigureChar()){
+                    return new Winner(mPlayer, new int[]{
+                            i,0,i,1,i,2
+                    });
+                }
+                else {
+                    return new Winner(mOpponent, new int[]{
+                            i,0,i,1,i,2
+                    });
+                }
             }
             //Columns
             if (mBoard[0][i] == mBoard[1][i] && mBoard[1][i] == mBoard[2][i] && mBoard[0][i] != mDefault) {
                 mGameState = GameState.Finished;
-                return new Winner(mBoard[0][i], i, WinningPosition.Column);
+                if(mBoard[0][i] == mPlayer.getFigureChar()){
+                    return new Winner(mPlayer, new int[]{
+                            0,i,1,i,2,i
+                    });
+                }
+                else {
+                    return new Winner(mOpponent, new int[]{
+                            0,i,1,i,2,i
+                    });
+                }
             }
         }
+
         //Checking the two diagonals for 3 identical chars. Since the rows and columns are already checked
         //the diagonals are the only two options left for a win state.
         if(mBoard[0][0] == mBoard[1][1] && mBoard[1][1] == mBoard[2][2] && mBoard[0][0] != mDefault){
             mGameState = GameState.Finished;
-            return new Winner(mBoard[0][0], 0, WinningPosition.Diagonal);
+            if(mBoard[0][0] == mPlayer.getFigureChar()){
+                return new Winner(mPlayer, new int[]{
+                    0,0,1,1,2,2
+                });
+            }
+            else {
+                return new Winner(mOpponent, new int[]{
+                        0,0,1,1,2,2
+                });
+            }
+
         }
         if(mBoard[2][0] == mBoard[1][1] && mBoard[1][1] == mBoard[0][2] && mBoard[0][2] != mDefault){
             mGameState = GameState.Finished;
-            return new Winner(mBoard[2][0], 2, WinningPosition.Diagonal);
+            if(mBoard[2][0] == mPlayer.getFigureChar()){
+                return new Winner(mPlayer, new int[]{
+                        2,0,1,1,0,2
+                });
+            }
+            else {
+                return new Winner(mOpponent, new int[]{
+                        2,0,1,1,0,2
+                });
+            }
         }
         return null;
     }
+
     @Override
     public void highlightWinningSequence(Winner winner) {
-
-        char winningPiece = winner.getWinningPiece();
-        int resource;
-
-        if(winningPiece == mCrossChar){
-            resource = mCrossWinner;
-        }
-        else {
-            resource = mCircleWinner;
-        }
-
-        if(winner.getWinningPosition() == WinningPosition.Column){
-            for (int i = 0; i < mIds[0].length; i++) {
-                mCells.get(mIds[i][winner.getStartingPosition()]).getCell().setBackgroundResource(resource);
-            }
-        }else if(winner.getWinningPosition() == WinningPosition.Row){
-            for (int i = 0; i < mIds[0].length; i++) {
-                mCells.get(mIds[winner.getStartingPosition()][i]).getCell().setBackgroundResource(resource);
-            }
-        }
-        else {
-            if(winner.getStartingPosition() == 0){
-                mCells.get(mIds[0][0]).getCell().setBackgroundResource(resource);
-                mCells.get(mIds[1][1]).getCell().setBackgroundResource(resource);
-                mCells.get(mIds[2][2]).getCell().setBackgroundResource(resource);
-            }
-            else {
-                mCells.get(mIds[0][2]).getCell().setBackgroundResource(resource);
-                mCells.get(mIds[1][1]).getCell().setBackgroundResource(resource);
-                mCells.get(mIds[2][0]).getCell().setBackgroundResource(resource);
-            }
+        Player player = winner.getPlayer();
+        int[] coordinates = winner.getWinningStreakCoordinates();
+        for (int i = 0; i < coordinates.length - 1; i += 2) {
+            mCells.get(mIds[coordinates[i]][coordinates[i + 1]]).getCell().setBackgroundResource(player.getFigureDrawable());
         }
     }
+
     @Override
     //Completely resets the board state, moves count, winner and status text
     public void resetGame(){
@@ -364,6 +381,10 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         else {
             startDiscovery();
         }
+    }
+
+    public void stopAllEndpoints(){
+        mConnectionsClient.stopAllEndpoints();
     }
 
     @Override

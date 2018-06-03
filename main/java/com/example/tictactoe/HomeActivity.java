@@ -35,6 +35,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()){
             case R.id.btn_start_game:
                 intent = new Intent(this, GameActivity.class);
+                intent.putExtra("GAME_MANAGER", manager);
                 break;
             case R.id.btn_connect:
                 intent = new Intent(this, ConnectionsActivity.class);
