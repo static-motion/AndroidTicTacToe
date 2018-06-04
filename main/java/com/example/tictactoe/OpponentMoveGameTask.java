@@ -6,7 +6,7 @@ public class OpponentMoveGameTask extends AsyncTask <Integer, GridCell, Winner> 
     private UserInterface userInterface;
     private TicTacToeGameManager mManager;
 
-    OpponentMoveGameTask(UserInterface ui, MultiplayerGameManager manager){
+    OpponentMoveGameTask(UserInterface ui, TicTacToeGameManager manager){
         this.userInterface = ui;
         mManager = manager;
     }

@@ -7,7 +7,7 @@ public class GameTask extends AsyncTask<Integer, GridCell, Winner> {
     private UserInterface userInterface;
     private TicTacToeGameManager mManager;
 
-    GameTask(UserInterface ui, MultiplayerGameManager manager){
+    GameTask(UserInterface ui, TicTacToeGameManager manager){
         this.userInterface = ui;
         mManager = manager;
     }
