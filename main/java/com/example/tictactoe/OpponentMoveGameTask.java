@@ -2,22 +2,18 @@ package com.example.tictactoe;
 
 import android.os.AsyncTask;
 
-public class GameTask extends AsyncTask<Integer, GridCell, Winner> {
-
+public class OpponentMoveGameTask extends AsyncTask <Integer, GridCell, Winner> {
     private UserInterface userInterface;
-    private TicTacToeGameManager mManager;
+    private MultiplayerGameManager mManager;
 
-    GameTask(UserInterface ui, MultiplayerGameManager manager){
+    OpponentMoveGameTask(UserInterface ui, MultiplayerGameManager manager){
         this.userInterface = ui;
         mManager = manager;
     }
 
     @Override
     protected Winner doInBackground(Integer... integers) {
-        GridCell cell =  mManager.processMove(integers[0]);
-        if(cell == null){
-            return null;
-        }
+        GridCell cell =  mManager.processOpponentMove(integers[0]);
         publishProgress(cell);
         return mManager.checkForWinner();
     }

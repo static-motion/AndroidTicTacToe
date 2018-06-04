@@ -1,5 +1,9 @@
 package com.example.tictactoe;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -12,12 +16,14 @@ public class MultiplayerGameActivity extends AppCompatActivity implements View.O
     private TextView mNaughtsScore;
     private TextView mStatus;
     MultiplayerGameManager manager;
+    OpponentMoveReceiver mMoveReceiver;
+    public static final String BROADCAST_ACTION = "com.example.tictactoe";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        setTheme(R.style.AppTheme);
         manager = new MultiplayerGameManager();
         manager.initialize(MultiplayerGameActivity.this, getIntent().getBooleanExtra("IS_HOST", false));
 
@@ -34,6 +40,15 @@ public class MultiplayerGameActivity extends AppCompatActivity implements View.O
         mCrossesScore = findViewById(R.id.crossesScore);
         mNaughtsScore = findViewById(R.id.naughtsScore);
         mStatus = findViewById(R.id.status);
+        registerMoveReceiver();
+        startService(new Intent(this, MultiplayerGameManager.class));
+    }
+
+    private void registerMoveReceiver() {
+        mMoveReceiver = new OpponentMoveReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BROADCAST_ACTION);
+        registerReceiver(mMoveReceiver, filter);
     }
 
     @Override
@@ -42,9 +57,21 @@ public class MultiplayerGameActivity extends AppCompatActivity implements View.O
             manager.resetGame();
             return;
         }
-        new GameTask(this, manager).execute(v.getId());
-        //Update the UI if a winner is found or 9 turns have passed (the maximum possible in tic tac toe)
+        registerMove(v.getId());
+    }
 
+    private void registerMove(int id){
+        new GameTask(this, manager).execute(id);
+    }
+
+    private void registerOpponentMove(int id){
+        new OpponentMoveGameTask(this, manager).execute(id);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mMoveReceiver);
     }
 
     @Override
@@ -70,5 +97,14 @@ public class MultiplayerGameActivity extends AppCompatActivity implements View.O
 
     public void drawFigure(GridCell cell) {
         manager.drawFigure(cell);
+    }
+
+    private class OpponentMoveReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int cellId = intent.getIntExtra("CELL_ID", -1);
+            registerOpponentMove(cellId);
+        }
     }
 }

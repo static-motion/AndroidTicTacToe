@@ -3,10 +3,12 @@ package com.example.tictactoe;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.Serializable;
+
 //Button wrapper class. It contains the button's coordinates in the grid
 //allowing for a convenient way to update the game board matrices.
 
-public class GridCell {
+public class GridCell implements Serializable {
 
     private Button mCell;
     private int mRow;

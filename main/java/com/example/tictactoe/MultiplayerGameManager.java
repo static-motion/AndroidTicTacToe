@@ -2,9 +2,12 @@ package com.example.tictactoe;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.IntentService;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
@@ -29,7 +32,7 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
-public class MultiplayerGameManager implements TicTacToeGameManager, Serializable{
+public class MultiplayerGameManager extends IntentService implements TicTacToeGameManager, Serializable{
 
     private boolean isHost;
     private String mOpponentEndpointId;
@@ -44,7 +47,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
     private final int mCrossWinner = R.drawable.cross_win;
     private int mTurnsCount = 0;
     private GameState mGameState = GameState.InProgress;
-    private char mDefault = mBoard[0][0];
+    private final char mDefault = mBoard[0][0];
     private Player mPlayer;
     private Player mOpponent;
     private final char mCrossChar = 'x';
@@ -60,7 +63,9 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
             Log.d(TAG, new String(payload.asBytes(), Charset.forName("UTF-8")));
-            processOpponentMove(new String(payload.asBytes(), Charset.forName("UTF-8")));
+            int cellID = parseOpponentMove(new String(payload.asBytes(), Charset.forName("UTF-8")));
+            broadcastId(cellID);
+
         }
 
         @Override
@@ -68,6 +73,13 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
 
         }
     };
+
+    private void broadcastId(int cellId) {
+        Intent intent = new Intent();
+        intent.setAction(MultiplayerGameActivity.BROADCAST_ACTION);
+        intent.putExtra("CELL_ID", cellId);
+        mContext.sendBroadcast(intent);
+    }
 
     private final EndpointDiscoveryCallback mEndpointDiscoveryCallback = new EndpointDiscoveryCallback() {
         @Override
@@ -136,24 +148,26 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         }
     };
 
+    public MultiplayerGameManager(){
+        super(MultiplayerGameManager.class.getName());
+        mCells = new HashMap<>();
+    }
     private void registerPlayers(String opponentName, String opponentEndpointId) {
         mOpponentEndpointId = opponentEndpointId;
         mOpponent = new Player(opponentName);
         mPlayer = new Player("Pesho");
         if(isHost){
             mPlayer.setFigure(mCross, mCrossChar, mCrossWinner);
-            mOpponent.setFigure(mCircle, mCircleChar, mCrossWinner);
+            mOpponent.setFigure(mCircle, mCircleChar, mCircleWinner);
             mIsOpponentsTurn = false;
         }
         else {
-            mPlayer.setFigure(mCircle, mCircleChar, mCrossWinner);
+            mPlayer.setFigure(mCircle, mCircleChar, mCircleWinner);
             mOpponent.setFigure(mCross, mCrossChar, mCrossWinner);
         }
     }
 
-    MultiplayerGameManager(){
-        mCells = new HashMap<>();
-    }
+
 
     private void startAdvertising(){
         AdvertisingOptions.Builder builder = new AdvertisingOptions.Builder();
@@ -212,6 +226,17 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         }
     }
 
+    public GridCell processOpponentMove(int id){
+        GridCell clickedCell = mCells.get(id);
+        int row = clickedCell.getRow();
+        int col = clickedCell.getCol();
+        mIsOpponentsTurn = false;
+        updateCell(clickedCell.getCell(), row, col);
+        mTurnsCount++;
+        updateGameState();
+        return clickedCell;
+    }
+
     @Override
     public GridCell processMove(int id) {
 
@@ -231,15 +256,10 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         return clickedCell;
     }
 
-    private void processOpponentMove(String coordinates) {
+    private int parseOpponentMove(String coordinates) {
         int row = Character.getNumericValue(coordinates.charAt(0));
         int col = Character.getNumericValue(coordinates.charAt(1));
-        GridCell clickedCell = mCells.get(mIds[row][col]);
-        updateCell(clickedCell.getCell(), row, col);
-        mTurnsCount++;
-        updateGameState();
-        mIsOpponentsTurn = false;
-
+        return mCells.get(mIds[row][col]).getCell().getId();
     }
 
     private void sendMoveCoordinates(int row, int col){
@@ -330,8 +350,8 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
                         0,0,1,1,2,2
                 });
             }
-
         }
+
         if(mBoard[2][0] == mBoard[1][1] && mBoard[1][1] == mBoard[0][2] && mBoard[0][2] != mDefault){
             mGameState = GameState.Finished;
             if(mBoard[2][0] == mPlayer.getFigureChar()){
@@ -353,7 +373,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         Player player = winner.getPlayer();
         int[] coordinates = winner.getWinningStreakCoordinates();
         for (int i = 0; i < coordinates.length - 1; i += 2) {
-            mCells.get(mIds[coordinates[i]][coordinates[i + 1]]).getCell().setBackgroundResource(player.getFigureDrawable());
+            mCells.get(mIds[coordinates[i]][coordinates[i + 1]]).getCell().setBackgroundResource(player.getHighlightedFigure());
         }
     }
 
@@ -390,5 +410,10 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
     @Override
     public GameState getGameState(){
         return this.mGameState;
+    }
+
+    @Override
+    protected void onHandleIntent(@Nullable Intent intent) {
+
     }
 }

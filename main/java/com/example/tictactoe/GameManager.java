@@ -168,4 +168,3 @@ public class GameManager implements TicTacToeGameManager, Serializable {
         return this.mGameState;
     }
 }
-
