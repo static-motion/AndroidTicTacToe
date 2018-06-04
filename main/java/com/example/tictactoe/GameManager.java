@@ -152,6 +152,11 @@ public class GameManager implements TicTacToeGameManager, Serializable {
         }
     }
 
+    @Override
+    public GridCell processOpponentMove(int id) {
+        return null;
+    }
+
     //Completely resets the board state, moves count, winner and status text
     public void resetGame () {
         for (int i = 0; i < mTaken[0].length; i++) {

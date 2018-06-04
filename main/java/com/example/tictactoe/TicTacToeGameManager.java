@@ -10,6 +10,8 @@ public interface TicTacToeGameManager {
 
     void highlightWinningSequence(Winner winner);
 
+    GridCell processOpponentMove(int id);
+
     GameState getGameState();
 
     void resetGame();

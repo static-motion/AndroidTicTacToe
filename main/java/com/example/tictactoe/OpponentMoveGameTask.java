@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 
 public class OpponentMoveGameTask extends AsyncTask <Integer, GridCell, Winner> {
     private UserInterface userInterface;
-    private MultiplayerGameManager mManager;
+    private TicTacToeGameManager mManager;
 
     OpponentMoveGameTask(UserInterface ui, MultiplayerGameManager manager){
         this.userInterface = ui;
