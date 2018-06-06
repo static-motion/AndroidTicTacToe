@@ -20,13 +20,21 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.connections_layout);
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 500);
-        }
+        askForLocationPermission();
+        registerUI();
+    }
+
+    private void registerUI() {
         mBtnServer = findViewById(R.id.btn_server);
         mBtnClient = findViewById(R.id.btn_client);
         mBtnServer.setOnClickListener(this);
         mBtnClient.setOnClickListener(this);
+    }
+
+    private void askForLocationPermission() {
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 500);
+        }
     }
 
     @Override

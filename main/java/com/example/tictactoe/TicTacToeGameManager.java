@@ -15,5 +15,4 @@ public interface TicTacToeGameManager {
     GameState getGameState();
 
     void resetGame();
-
 }

@@ -211,7 +211,7 @@
 
         <TextView
             style="@style/TextStyle"
-            android:id="@+id/naughts"
+            android:id="@+id/player_2"
             android:textSize="20sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -223,7 +223,7 @@
 
         <TextView
             style="@style/TextStyle"
-            android:id="@+id/crosses"
+            android:id="@+id/player_1"
             android:textSize="20sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -235,12 +235,12 @@
 
         <TextView
             style="@style/TextStyle"
-            android:id="@+id/crossesScore"
+            android:id="@+id/player_1_score"
             android:textSize="70sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/zero"
-            app:layout_constraintTop_toBottomOf="@id/naughts"
+            app:layout_constraintTop_toBottomOf="@id/player_2"
             app:layout_constraintRight_toLeftOf="@+id/guideline_hor_left"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -248,28 +248,27 @@
             />
         <TextView
             style="@style/TextStyle"
-            android:id="@+id/naughtsScore"
+            android:id="@+id/player_2_score"
             android:textSize="70sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/zero"
-            app:layout_constraintTop_toBottomOf="@id/crosses"
+            app:layout_constraintTop_toBottomOf="@id/player_1"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/guideline_hor_right"
             app:layout_constraintBottom_toBottomOf="parent"
             />
 
         <TextView
-            style="@style/TextStyle"
             android:id="@+id/status"
-            android:text="@string/starting_tip"
-            android:textSize="25sp"
+            style="@style/TextStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintRight_toLeftOf="@id/crossesScore"
-            app:layout_constraintLeft_toRightOf="@id/naughtsScore"
-            app:layout_constraintTop_toBottomOf="@id/score"
+            android:text="@string/starting_tip"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            />
+            app:layout_constraintLeft_toRightOf="@id/player_2_score"
+            app:layout_constraintRight_toLeftOf="@id/player_1_score"
+            app:layout_constraintTop_toBottomOf="@id/score" />
     </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

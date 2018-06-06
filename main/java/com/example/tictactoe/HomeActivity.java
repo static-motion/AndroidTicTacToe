@@ -19,7 +19,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        setTheme(R.style.AppTheme);
         manager = new GameManager();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_layout);

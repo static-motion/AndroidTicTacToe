@@ -4,13 +4,15 @@ import java.io.Serializable;
 
 public class Player implements Serializable{
     private String mName;
+    private boolean mIsOpponent;
     private char mFigure;
     private int mFigureDrawable;
     private int mWinsCount;
     private int mHighlightedFigure;
 
-    Player(String name){
+    Player(String name, boolean isOpponent){
         mName = name;
+        mIsOpponent = isOpponent;
     }
 
     public String getName(){
@@ -21,6 +23,7 @@ public class Player implements Serializable{
         mFigureDrawable = id;
         mFigure = figure;
         mHighlightedFigure = highlightedFigure;
+
     }
 
     public int getHighlightedFigure(){
@@ -41,5 +44,9 @@ public class Player implements Serializable{
 
     public void increaseWinsCount(){
         mWinsCount++;
+    }
+
+    public boolean isOpponent(){
+        return mIsOpponent;
     }
 }

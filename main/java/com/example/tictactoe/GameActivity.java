@@ -19,8 +19,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setTheme(R.style.AppTheme);
+        setUpGameManager();
+        mCrossesScore = findViewById(R.id.player_1_score);
+        mNaughtsScore = findViewById(R.id.player_2_score);
+        mStatus = findViewById(R.id.status);
+    }
 
+    private void setUpGameManager() {
         manager = (GameManager) getIntent().getSerializableExtra("GAME_MANAGER");
 
         manager.registerCell(R.id.btn_1, new GridCell((Button)findViewById(R.id.btn_1), 0, 0, this));
@@ -32,21 +37,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         manager.registerCell(R.id.btn_7, new GridCell((Button)findViewById(R.id.btn_7), 2, 0, this));
         manager.registerCell(R.id.btn_8, new GridCell((Button)findViewById(R.id.btn_8), 2, 1, this));
         manager.registerCell(R.id.btn_9, new GridCell((Button)findViewById(R.id.btn_9), 2, 2, this));
-
-        mCrossesScore = findViewById(R.id.crossesScore);
-        mNaughtsScore = findViewById(R.id.naughtsScore);
-        mStatus = findViewById(R.id.status);
     }
 
     @Override
     public void onClick(View v) {
         if(manager.getGameState() == GameState.Finished){
             manager.resetGame();
-            return;
         }
-
-        GridCell clickedCell = manager.processMove(v.getId());
-
         //Update the UI if a winner is found or 9 turns have passed (the maximum possible in tic tac toe)
     }
 

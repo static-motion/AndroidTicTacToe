@@ -2,10 +2,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
-    </style>
-
-    <style name="AppTheme.SplashBackground" parent="AppTheme">
-        <item name="android:background">@color/colorBlack</item>
+        <item name="android:colorBackground">@color/colorBlack</item>
     </style>
 
     <style name="Background">

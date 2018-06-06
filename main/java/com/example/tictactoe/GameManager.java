@@ -20,8 +20,8 @@ public class GameManager implements TicTacToeGameManager, Serializable {
     private char mDefault = mBoard[0][0];
     private final char mCrossChar = 'x';
     private final char mCircleChar = 'o';
-    private final Player mCrossesPlayer = new Player("Crosses");
-    private final Player mCirclesPlayer = new Player("Naughts");
+    private final Player mCrossesPlayer = new Player("Crosses", false);
+    private final Player mCirclesPlayer = new Player("Naughts", true);
     private int mRowId;
     private int mColId;
 
@@ -169,6 +169,7 @@ public class GameManager implements TicTacToeGameManager, Serializable {
         mTurnsCount = 0;
         mGameState = GameState.InProgress;
     }
+
     public GameState getGameState () {
         return this.mGameState;
     }

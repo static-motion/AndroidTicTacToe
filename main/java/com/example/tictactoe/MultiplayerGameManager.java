@@ -2,14 +2,10 @@ package com.example.tictactoe;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.IntentService;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.nearby.Nearby;
@@ -28,12 +24,17 @@ import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
-public class MultiplayerGameManager extends IntentService implements TicTacToeGameManager, Serializable{
+public class MultiplayerGameManager implements TicTacToeGameManager, Serializable{
 
+    private boolean mRestartRequestSent = false;
+    private boolean mRestartRequestReceived = false;
+    private final String RESTART_REQUEST = "RESTART_REQUEST";
     private boolean isHost;
     private String mOpponentEndpointId;
     private boolean mIsOpponentsTurn = true;
@@ -63,22 +64,24 @@ public class MultiplayerGameManager extends IntentService implements TicTacToeGa
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
             Log.d(TAG, new String(payload.asBytes(), Charset.forName("UTF-8")));
-            int cellID = parseOpponentMove(new String(payload.asBytes(), Charset.forName("UTF-8")));
-            broadcastId(cellID);
-
+            String data = new String(payload.asBytes(), Charset.forName("UTF-8"));
+            if(!data.equals("RESTART_REQUEST")){
+                int cellID = parseOpponentMove(data);
+                sendCellId(cellID);
+            }
+            else {
+                mRestartRequestReceived = true;
+                resetGame();
+            }
         }
 
         @Override
         public void onPayloadTransferUpdate(@NonNull String s, @NonNull PayloadTransferUpdate payloadTransferUpdate) {
-
         }
     };
 
-    private void broadcastId(int cellId) {
-        Intent intent = new Intent();
-        intent.setAction(MultiplayerGameActivity.BROADCAST_ACTION);
-        intent.putExtra("CELL_ID", cellId);
-        mContext.sendBroadcast(intent);
+    private void sendCellId(int cellId) {
+        EventBus.getDefault().post(new CellIdEvent(cellId));
     }
 
     private final EndpointDiscoveryCallback mEndpointDiscoveryCallback = new EndpointDiscoveryCallback() {
@@ -148,14 +151,13 @@ public class MultiplayerGameManager extends IntentService implements TicTacToeGa
         }
     };
 
-    public MultiplayerGameManager(){
-        super(MultiplayerGameManager.class.getName());
+    MultiplayerGameManager(){
         mCells = new HashMap<>();
     }
     private void registerPlayers(String opponentName, String opponentEndpointId) {
         mOpponentEndpointId = opponentEndpointId;
-        mOpponent = new Player(opponentName);
-        mPlayer = new Player("Pesho");
+        mOpponent = new Player(opponentName, true);
+        mPlayer = new Player("Pesho", false);
         if(isHost){
             mPlayer.setFigure(mCross, mCrossChar, mCrossWinner);
             mOpponent.setFigure(mCircle, mCircleChar, mCircleWinner);
@@ -231,7 +233,7 @@ public class MultiplayerGameManager extends IntentService implements TicTacToeGa
         int row = clickedCell.getRow();
         int col = clickedCell.getCol();
         mIsOpponentsTurn = false;
-        updateCell(clickedCell.getCell(), row, col);
+        updateCell(row, col);
         mTurnsCount++;
         updateGameState();
         return clickedCell;
@@ -249,7 +251,7 @@ public class MultiplayerGameManager extends IntentService implements TicTacToeGa
         }
 
         mIsOpponentsTurn = true;
-        updateCell(clickedCell.getCell(), row, col);
+        updateCell(row, col);
         mTurnsCount++;
         updateGameState();
         sendMoveCoordinates(row, col);
@@ -267,15 +269,21 @@ public class MultiplayerGameManager extends IntentService implements TicTacToeGa
         mConnectionsClient.sendPayload(mOpponentEndpointId, Payload.fromBytes(coords.getBytes(Charset.forName("UTF-8"))));
     }
 
+    public void sendRestartRequest(){
+        mConnectionsClient.sendPayload(mOpponentEndpointId, Payload.fromBytes(RESTART_REQUEST.getBytes(Charset.forName("UTF-8"))));
+        mRestartRequestSent = true;
+        resetGame();
+    }
+
     private void updateGameState() {
         if(mTurnsCount == 9){
             mGameState = GameState.Finished;
         }
     }
 
-    //Place vector background on clicked button, mark the position as taken
+    //Mark the position as taken
     //and put the corresponding char in the mBoard matrix.
-    private void updateCell(Button button, int row, int col) {
+    private void updateCell(int row, int col) {
         if (!mIsOpponentsTurn) {
             mBoard[row][col] = mPlayer.getFigureChar();
         } else {
@@ -380,6 +388,13 @@ public class MultiplayerGameManager extends IntentService implements TicTacToeGa
     @Override
     //Completely resets the board state, moves count, winner and status text
     public void resetGame(){
+        if(!(mRestartRequestSent && mRestartRequestReceived)){
+            return;
+        }
+
+        mRestartRequestSent = false;
+        mRestartRequestReceived = false;
+
         for (int i = 0; i < mTaken[0].length; i++) {
             for (int j = 0; j < mTaken[1].length; j++) {
                 mCells.get(mIds[i][j]).getCell().setBackgroundResource(R.color.colorBlack);
@@ -410,10 +425,5 @@ public class MultiplayerGameManager extends IntentService implements TicTacToeGa
     @Override
     public GameState getGameState(){
         return this.mGameState;
-    }
-
-    @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-
     }
 }

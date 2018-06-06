@@ -2,12 +2,13 @@ package com.example.tictactoe;
 
 import android.os.AsyncTask;
 
+import org.greenrobot.eventbus.EventBus;
+
 public class OpponentMoveGameTask extends AsyncTask <Integer, GridCell, Winner> {
-    private UserInterface userInterface;
+
     private TicTacToeGameManager mManager;
 
-    OpponentMoveGameTask(UserInterface ui, TicTacToeGameManager manager){
-        this.userInterface = ui;
+    OpponentMoveGameTask(TicTacToeGameManager manager){
         mManager = manager;
     }
 
@@ -22,13 +23,13 @@ public class OpponentMoveGameTask extends AsyncTask <Integer, GridCell, Winner> 
     protected void onPostExecute(Winner winner) {
         super.onPostExecute(winner);
         if(winner != null || mManager.getGameState() == GameState.Finished){
-            userInterface.updateScore(winner);
+            EventBus.getDefault().post(new WinnerEvent(winner));
         }
     }
 
     @Override
     protected void onProgressUpdate(GridCell... values) {
         super.onProgressUpdate(values);
-        userInterface.drawFigure(values[0]);
+        EventBus.getDefault().post(values[0]);
     }
 }
