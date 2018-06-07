@@ -87,6 +87,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
     private final EndpointDiscoveryCallback mEndpointDiscoveryCallback = new EndpointDiscoveryCallback() {
         @Override
         public void onEndpointFound(@NonNull final String endpointId, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
+            EventBus.getDefault().post(new SearchingForDevicesEvent(false));
             Log.d(TAG, String.format("Endpoint discovered - %s, requesting connection.", discoveredEndpointInfo.getEndpointName()));
             mConnectionsClient.stopDiscovery();
             mConnectionsClient
@@ -147,7 +148,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
 
         @Override
         public void onDisconnected(@NonNull String s) {
-            //TODO
+            EventBus.getDefault().post(new PlayerDisconnectedEvent());
         }
     };
 
@@ -208,6 +209,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                            EventBus.getDefault().post(new SearchingForDevicesEvent(true));
                             Log.d(TAG, "Discovering...");
                     }})
                 .addOnFailureListener(new OnFailureListener() {
@@ -425,5 +427,9 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
     @Override
     public GameState getGameState(){
         return this.mGameState;
+    }
+
+    public void stopDiscovery() {
+        mConnectionsClient.stopDiscovery();
     }
 }

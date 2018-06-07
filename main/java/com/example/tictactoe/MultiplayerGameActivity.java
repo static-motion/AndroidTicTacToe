@@ -1,10 +1,15 @@
 package com.example.tictactoe;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -15,6 +20,7 @@ public class MultiplayerGameActivity extends AppCompatActivity implements View.O
     private TextView mOpponentScore;
     private TextView mStatus;
     MultiplayerGameManager manager;
+    ProgressDialog mSearchingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,11 +64,6 @@ public class MultiplayerGameActivity extends AppCompatActivity implements View.O
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
     protected void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
@@ -74,6 +75,40 @@ public class MultiplayerGameActivity extends AppCompatActivity implements View.O
         manager.stopAllEndpoints();
         manager.resetGame();
         super.onStop();
+    }
+
+    @Subscribe
+    public void showProgressDialog(SearchingForDevicesEvent event){
+        if(event.isSearching()){
+            final Context context = this;
+            mSearchingDialog = ProgressDialog.show(this, "Searching for game rooms...", "Press back to cancel",
+                    true, true, new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            manager.stopDiscovery();
+                            Toast.makeText(context, "Searching for other devices canceled", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+        else {
+            mSearchingDialog.dismiss();
+        }
+    }
+
+    @Subscribe
+    public void showPlayerDisocnnected(PlayerDisconnectedEvent event){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Your opponent has disconnected!")
+                .setMessage("You will be returned back to the main menu.")
+                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                });
+        AlertDialog playerDisconnectedDialog = builder.create();
+        playerDisconnectedDialog.show();
+
     }
 
     //Updates the score depending on which figure won and update the status text.
