@@ -10,11 +10,17 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
+import java.util.Random;
 
 public class ConnectionsActivity extends AppCompatActivity implements View.OnClickListener{
 
+    public static final String TIC_TAC_TOE_PREFS = "TIC_TAC_TOE_PREFS";
     private Button mBtnServer;
     private Button mBtnClient;
+    TextView mUsername;
+    private String mUsernameString;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -22,6 +28,24 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.connections_layout);
         askForLocationPermission();
         registerUI();
+        mUsernameString = getUsername();
+        mUsername.setText(mUsernameString);
+    }
+
+    private String getUsername() {
+        String username = getSharedPreferences(TIC_TAC_TOE_PREFS, MODE_PRIVATE).getString("name", null);
+        if(username == null){
+            username = "Player#" + getRandomNumber();
+            getSharedPreferences(TIC_TAC_TOE_PREFS, MODE_PRIVATE)
+                    .edit()
+                    .putString("name", username)
+                    .apply();
+        }
+        return username;
+    }
+
+    private String getRandomNumber() {
+        return String.format("%04d", new Random().nextInt(9999));
     }
 
     private void registerUI() {
@@ -29,6 +53,7 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
         mBtnClient = findViewById(R.id.btn_client);
         mBtnServer.setOnClickListener(this);
         mBtnClient.setOnClickListener(this);
+        mUsername = findViewById(R.id.username);
     }
 
     private void askForLocationPermission() {
@@ -40,6 +65,7 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View v) {
         Intent intent = new Intent(this, MultiplayerGameActivity.class);
+        intent.putExtra("PLAYER_NAME", mUsernameString);
         switch (v.getId()){
             case R.id.btn_server:
                 intent.putExtra("IS_HOST", true);

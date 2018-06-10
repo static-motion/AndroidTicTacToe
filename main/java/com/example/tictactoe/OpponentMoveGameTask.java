@@ -20,16 +20,16 @@ public class OpponentMoveGameTask extends AsyncTask <Integer, GridCell, Winner> 
     }
 
     @Override
+    protected void onProgressUpdate(GridCell... values) {
+        super.onProgressUpdate(values);
+        EventBus.getDefault().post(values[0]);
+    }
+
+    @Override
     protected void onPostExecute(Winner winner) {
         super.onPostExecute(winner);
         if(winner != null || mManager.getGameState() == GameState.Finished){
             EventBus.getDefault().post(new WinnerEvent(winner));
         }
-    }
-
-    @Override
-    protected void onProgressUpdate(GridCell... values) {
-        super.onProgressUpdate(values);
-        EventBus.getDefault().post(values[0]);
     }
 }

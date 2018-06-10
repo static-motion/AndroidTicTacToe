@@ -7,6 +7,15 @@
     style="@style/Background"
     >
 
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/username"
+        android:textSize="30sp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        />
+
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/btn_server"
         android:layout_width="match_parent"

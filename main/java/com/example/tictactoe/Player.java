@@ -3,6 +3,7 @@ package com.example.tictactoe;
 import java.io.Serializable;
 
 public class Player implements Serializable{
+
     private String mName;
     private boolean mIsOpponent;
     private char mFigure;

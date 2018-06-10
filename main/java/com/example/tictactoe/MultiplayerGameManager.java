@@ -1,12 +1,8 @@
 package com.example.tictactoe;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
@@ -26,41 +22,40 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
-public class MultiplayerGameManager implements TicTacToeGameManager, Serializable{
+public class MultiplayerGameManager implements TicTacToeGameManager{
 
+    private String mPlayerName;
     private boolean mRestartRequestSent = false;
     private boolean mRestartRequestReceived = false;
     private final String RESTART_REQUEST = "RESTART_REQUEST";
-    private boolean isHost;
+    private boolean mIsHost;
     private String mOpponentEndpointId;
     private boolean mIsOpponentsTurn = true;
     private boolean[][] mTaken = new boolean[3][3];
     private char[][] mBoard = new char[3][3];
     private int[][] mIds = new int[3][3];
     private HashMap<Integer,GridCell> mCells;
-    private final int mCircle = R.drawable.circle;
-    private final int mCircleWinner = R.drawable.circle_win;
-    private final int mCross = R.drawable.cross;
-    private final int mCrossWinner = R.drawable.cross_win;
+    private final int CIRCLE = R.drawable.circle;
+    private final int CIRCLE_HIGHLIGHTED = R.drawable.circle_win;
+    private final int CROSS = R.drawable.cross;
+    private final int CROSS_HIGHLIGHTED = R.drawable.cross_win;
     private int mTurnsCount = 0;
     private GameState mGameState = GameState.InProgress;
-    private final char mDefault = mBoard[0][0];
+    private final char DEFAULT_CHAR = mBoard[0][0];
     private Player mPlayer;
     private Player mOpponent;
-    private final char mCrossChar = 'x';
-    private final char mCircleChar = 'o';
+    private final char CROSS_CHAR = 'x';
+    private final char CIRCLE_CHAR = 'o';
     private int mRowId;
     private int mColId;
-    private Context mContext;
     private ConnectionsClient mConnectionsClient;
     private final String TAG = getClass().getSimpleName();
     private final Strategy STRATEGY = Strategy.P2P_POINT_TO_POINT;
     private final String SERVICE_ID = getClass().getCanonicalName();
-    private final PayloadCallback mPayloadCallback = new PayloadCallback() {
+    private PayloadCallback mPayloadCallback = new PayloadCallback() {
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
             Log.d(TAG, new String(payload.asBytes(), Charset.forName("UTF-8")));
@@ -83,16 +78,14 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
     private void sendCellId(int cellId) {
         EventBus.getDefault().post(new CellIdEvent(cellId));
     }
-
-    private final EndpointDiscoveryCallback mEndpointDiscoveryCallback = new EndpointDiscoveryCallback() {
+    private EndpointDiscoveryCallback mEndpointDiscoveryCallback = new EndpointDiscoveryCallback() {
         @Override
-        public void onEndpointFound(@NonNull final String endpointId, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
-            EventBus.getDefault().post(new SearchingForDevicesEvent(false));
+        public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
             Log.d(TAG, String.format("Endpoint discovered - %s, requesting connection.", discoveredEndpointInfo.getEndpointName()));
             mConnectionsClient.stopDiscovery();
             mConnectionsClient
                     .requestConnection(
-                            "Gosho",
+                            mPlayerName,
                             endpointId,
                             mConnectionLifecycleCallback
                     )
@@ -100,7 +93,6 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d(TAG, "Connection requested.");
-                            Toast.makeText(mContext, String.format("Connection to %s requested.", endpointId), Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -117,33 +109,25 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         }
     };
 
-    private final ConnectionLifecycleCallback mConnectionLifecycleCallback = new ConnectionLifecycleCallback() {
+    public void connect(String endpointId, String endpointName){
+        mConnectionsClient.acceptConnection(endpointId, mPayloadCallback);
+        registerPlayers(endpointName, endpointId);
+    }
+
+    public void rejectConnection(String endpointId){
+        mConnectionsClient.rejectConnection(endpointId);
+    }
+
+    private ConnectionLifecycleCallback mConnectionLifecycleCallback = new ConnectionLifecycleCallback() {
         @Override
-        public void onConnectionInitiated(@NonNull final String endpointId, @NonNull final ConnectionInfo connectionInfo) {
-            mConnectionsClient.stopAdvertising();
-            new AlertDialog.Builder(mContext)
-                    .setTitle("Accept connection to " + connectionInfo.getEndpointName())
-                    .setMessage("Confirm the code " + connectionInfo.getAuthenticationToken() + " is also displayed on the other device.")
-                    .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // The user confirmed, so we can accept the connection.
-                            mConnectionsClient.acceptConnection(endpointId, mPayloadCallback);
-                            registerPlayers(connectionInfo.getEndpointName(), endpointId);
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // The user canceled, so we should reject the connection.
-                            mConnectionsClient.rejectConnection(endpointId);
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
+        public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
+            EventBus.getDefault().post(new SearchingForDevicesEvent(false));
+            EventBus.getDefault().post(new DeviceFoundEvent(endpointId, connectionInfo.getAuthenticationToken(), connectionInfo.getEndpointName()));
         }
+
         @Override
         public void onConnectionResult(@NonNull String endpointId, @NonNull ConnectionResolution connectionResolution) {
             Log.d(TAG, connectionResolution.getStatus().getStatusMessage());
-            Toast.makeText(mContext, String.format("%s %s", endpointId, connectionResolution.getStatus().getStatusMessage()), Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -155,18 +139,19 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
     MultiplayerGameManager(){
         mCells = new HashMap<>();
     }
+
     private void registerPlayers(String opponentName, String opponentEndpointId) {
         mOpponentEndpointId = opponentEndpointId;
         mOpponent = new Player(opponentName, true);
-        mPlayer = new Player("Pesho", false);
-        if(isHost){
-            mPlayer.setFigure(mCross, mCrossChar, mCrossWinner);
-            mOpponent.setFigure(mCircle, mCircleChar, mCircleWinner);
+        mPlayer = new Player(mPlayerName, false);
+        if(mIsHost){
+            mPlayer.setFigure(CROSS, CROSS_CHAR, CROSS_HIGHLIGHTED);
+            mOpponent.setFigure(CIRCLE, CIRCLE_CHAR, CIRCLE_HIGHLIGHTED);
             mIsOpponentsTurn = false;
         }
         else {
-            mPlayer.setFigure(mCircle, mCircleChar, mCircleWinner);
-            mOpponent.setFigure(mCross, mCrossChar, mCrossWinner);
+            mPlayer.setFigure(CIRCLE, CIRCLE_CHAR, CIRCLE_HIGHLIGHTED);
+            mOpponent.setFigure(CROSS, CROSS_CHAR, CROSS_HIGHLIGHTED);
         }
     }
 
@@ -176,13 +161,11 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         AdvertisingOptions.Builder builder = new AdvertisingOptions.Builder();
         builder.setStrategy(STRATEGY);
         AdvertisingOptions options =  builder.build();
-
         mConnectionsClient
-                .startAdvertising("pesho", SERVICE_ID, mConnectionLifecycleCallback, options)
+                .startAdvertising(mPlayerName, SERVICE_ID, mConnectionLifecycleCallback, options)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(mContext, "Advertising...", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "Advertising...");
                     }
         })
@@ -191,7 +174,6 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
                     public void onFailure(@NonNull Exception e) {
                         Log.e(TAG, "Unable to start advertising");
                         e.printStackTrace();
-                        Toast.makeText(mContext, "Unable to start advertising.", Toast.LENGTH_SHORT).show();
                     }
         });
     }
@@ -222,7 +204,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
 
     @Override
     public void registerCell(int id, GridCell cell){
-        this.mCells.put(id, cell);
+        mCells.put(id, cell);
         mIds[mRowId][mColId++] = id;
         if(mColId > 2){
             mRowId++;
@@ -243,7 +225,6 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
 
     @Override
     public GridCell processMove(int id) {
-
         GridCell clickedCell = mCells.get(id);
         int row = clickedCell.getRow();
         int col = clickedCell.getCol();
@@ -317,7 +298,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         //Checking rows and columns for 3 identical chars.
         for (int i = 0; i < mBoard[0].length; i++) {
             //Rows
-            if (mBoard[i][0] == mBoard[i][1] && mBoard[i][1] == mBoard[i][2] && mBoard[i][0] != mDefault) {
+            if (mBoard[i][0] == mBoard[i][1] && mBoard[i][1] == mBoard[i][2] && mBoard[i][0] != DEFAULT_CHAR) {
                 mGameState = GameState.Finished;
                 if(mBoard[i][0] == mPlayer.getFigureChar()){
                     return new Winner(mPlayer, new int[]{
@@ -331,7 +312,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
                 }
             }
             //Columns
-            if (mBoard[0][i] == mBoard[1][i] && mBoard[1][i] == mBoard[2][i] && mBoard[0][i] != mDefault) {
+            if (mBoard[0][i] == mBoard[1][i] && mBoard[1][i] == mBoard[2][i] && mBoard[0][i] != DEFAULT_CHAR) {
                 mGameState = GameState.Finished;
                 if(mBoard[0][i] == mPlayer.getFigureChar()){
                     return new Winner(mPlayer, new int[]{
@@ -348,7 +329,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
 
         //Checking the two diagonals for 3 identical chars. Since the rows and columns are already checked
         //the diagonals are the only two options left for a win state.
-        if(mBoard[0][0] == mBoard[1][1] && mBoard[1][1] == mBoard[2][2] && mBoard[0][0] != mDefault){
+        if(mBoard[0][0] == mBoard[1][1] && mBoard[1][1] == mBoard[2][2] && mBoard[0][0] != DEFAULT_CHAR){
             mGameState = GameState.Finished;
             if(mBoard[0][0] == mPlayer.getFigureChar()){
                 return new Winner(mPlayer, new int[]{
@@ -362,7 +343,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
             }
         }
 
-        if(mBoard[2][0] == mBoard[1][1] && mBoard[1][1] == mBoard[0][2] && mBoard[0][2] != mDefault){
+        if(mBoard[2][0] == mBoard[1][1] && mBoard[1][1] == mBoard[0][2] && mBoard[0][2] != DEFAULT_CHAR){
             mGameState = GameState.Finished;
             if(mBoard[2][0] == mPlayer.getFigureChar()){
                 return new Winner(mPlayer, new int[]{
@@ -400,7 +381,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         for (int i = 0; i < mTaken[0].length; i++) {
             for (int j = 0; j < mTaken[1].length; j++) {
                 mCells.get(mIds[i][j]).getCell().setBackgroundResource(R.color.colorBlack);
-                mBoard[i][j] = mDefault;
+                mBoard[i][j] = DEFAULT_CHAR;
                 mTaken[i][j] = false;
             }
         }
@@ -408,10 +389,10 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
         mGameState = GameState.InProgress;
     }
 
-    public void initialize(Activity gameActivity, boolean isHost) {
-        this.mContext = gameActivity;
-        mConnectionsClient = Nearby.getConnectionsClient(mContext);
-        this.isHost = isHost;
+    public void initialize(Context context, boolean isHost, String playerName) {
+        mConnectionsClient = Nearby.getConnectionsClient(context.getApplicationContext());
+        mIsHost = isHost;
+        mPlayerName = playerName;
         if(isHost){
             startAdvertising();
         }
@@ -426,10 +407,17 @@ public class MultiplayerGameManager implements TicTacToeGameManager, Serializabl
 
     @Override
     public GameState getGameState(){
-        return this.mGameState;
+        return mGameState;
     }
 
     public void stopDiscovery() {
         mConnectionsClient.stopDiscovery();
+    }
+
+    public void shutdown(){
+        mConnectionsClient.stopDiscovery();
+        mConnectionsClient.stopAdvertising();
+        mConnectionsClient.stopAllEndpoints();
+        mCells.clear();
     }
 }
