@@ -1,4 +1,4 @@
-package com.example.tictactoe;
+package com.example.tictactoe.activities;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -10,6 +10,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.tictactoe.events.DeviceFoundEvent;
+import com.example.tictactoe.enums.GameState;
+import com.example.tictactoe.models.GridCell;
+import com.example.tictactoe.utils.MultiplayerGameManager;
+import com.example.tictactoe.events.OpponentMoveEvent;
+import com.example.tictactoe.models.Player;
+import com.example.tictactoe.events.PlayerDisconnectedEvent;
+import com.example.tictactoe.utils.ProcessMoveTask;
+import com.example.tictactoe.R;
+import com.example.tictactoe.events.SearchingForDevicesEvent;
+import com.example.tictactoe.models.Winner;
+import com.example.tictactoe.events.WinnerEvent;
+import com.example.tictactoe.utils.ProcessOpponentMoveTask;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -28,7 +42,7 @@ public class MultiplayerGameActivity extends AppCompatActivity{
                 manager.sendRestartRequest();
                 return;
             }
-            processClick(v.getId());
+            ProcessMove(v.getId());
         }
     };
     private TextView mPlayer;
@@ -37,7 +51,7 @@ public class MultiplayerGameActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.layout_game);
         setupManager();
         mPlayerScore = findViewById(R.id.player_1_score);
         mOpponentScore = findViewById(R.id.player_2_score);
@@ -66,13 +80,17 @@ public class MultiplayerGameActivity extends AppCompatActivity{
         manager.registerCell(R.id.btn_9, new GridCell((Button)findViewById(R.id.btn_9), 2, 2, listener));
     }
 
-    private void processClick(int id){
-        new GameTask(manager).execute(id);
+    private void ProcessMove(int id){
+        new ProcessMoveTask(manager).execute(id);
     }
 
     @Subscribe
-    public void registerOpponentMove(CellIdEvent event){
-        new OpponentMoveGameTask(manager).execute(event.getCellId());
+    public void registerOpponentMove(OpponentMoveEvent event){
+        ProcessOpponentMove(event.getCellId());
+    }
+
+    private void ProcessOpponentMove(int cellId) {
+        new ProcessOpponentMoveTask(manager).execute(cellId);
     }
 
     @Override
@@ -88,11 +106,6 @@ public class MultiplayerGameActivity extends AppCompatActivity{
         manager.shutdown();
         super.onStop();
         finish();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     @Subscribe

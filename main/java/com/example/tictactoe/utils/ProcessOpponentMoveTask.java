@@ -1,20 +1,25 @@
-package com.example.tictactoe;
+package com.example.tictactoe.utils;
 
 import android.os.AsyncTask;
 
+import com.example.tictactoe.enums.GameState;
+import com.example.tictactoe.events.WinnerEvent;
+import com.example.tictactoe.interfaces.TicTacToeGameManager;
+import com.example.tictactoe.models.GridCell;
+import com.example.tictactoe.models.Winner;
+
 import org.greenrobot.eventbus.EventBus;
 
-public class GameTask extends AsyncTask<Integer, GridCell, Winner> {
-
+public class ProcessOpponentMoveTask extends AsyncTask<Integer, GridCell, Winner> {
     private TicTacToeGameManager mManager;
 
-    GameTask(TicTacToeGameManager manager){
+    public ProcessOpponentMoveTask(TicTacToeGameManager manager){
         mManager = manager;
     }
 
     @Override
     protected Winner doInBackground(Integer... integers) {
-        GridCell cell =  mManager.processMove(integers[0]);
+        GridCell cell = mManager.processOpponentMove(integers[0]);
         if(cell == null){
             return null;
         }

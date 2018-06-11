@@ -1,11 +1,11 @@
-package com.example.tictactoe;
+package com.example.tictactoe.events;
 
-class DeviceFoundEvent {
+public class DeviceFoundEvent {
     private String EndpointId;
     private String AuthenticationToken;
     private String EndpointName;
 
-    DeviceFoundEvent(String endpointId, String authenticationToken, String endpointName) {
+    public DeviceFoundEvent(String endpointId, String authenticationToken, String endpointName) {
         EndpointId = endpointId;
         AuthenticationToken = authenticationToken;
         EndpointName = endpointName;

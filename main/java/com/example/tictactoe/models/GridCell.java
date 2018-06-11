@@ -1,4 +1,4 @@
-package com.example.tictactoe;
+package com.example.tictactoe.models;
 
 import android.view.View;
 import android.widget.Button;
@@ -14,7 +14,7 @@ public class GridCell implements Serializable {
     private int mRow;
     private int mCol;
 
-    GridCell(Button button, int row, int col, View.OnClickListener listener){
+    public GridCell(Button button, int row, int col, View.OnClickListener listener){
         mCell = button;
         mRow = row;
         mCol = col;

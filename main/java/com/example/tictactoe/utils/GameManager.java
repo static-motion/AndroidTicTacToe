@@ -1,34 +1,43 @@
-package com.example.tictactoe;
+package com.example.tictactoe.utils;
 
 import android.widget.Button;
 
-import java.io.Serializable;
+import com.example.tictactoe.R;
+import com.example.tictactoe.interfaces.TicTacToeGameManager;
+import com.example.tictactoe.enums.GameState;
+import com.example.tictactoe.models.Figure;
+import com.example.tictactoe.models.GridCell;
+import com.example.tictactoe.models.Player;
+import com.example.tictactoe.models.Winner;
+
 import java.util.HashMap;
 
-public class GameManager implements TicTacToeGameManager, Serializable {
+public class GameManager implements TicTacToeGameManager {
 
     private boolean[][] mTaken = new boolean[3][3];
     private char[][] mBoard = new char[3][3];
     private int[][] mIds = new int[3][3];
     private HashMap<Integer, GridCell> mCells;
-    private final int mCircle = R.drawable.circle;
-    private final int mCircleWinner = R.drawable.circle_win;
-    private final int mCross = R.drawable.cross;
-    private final int mCrossWinner = R.drawable.cross_win;
     private int mTurnsCount = 0;
     private GameState mGameState = GameState.InProgress;
     private char mDefault = mBoard[0][0];
-    private final char mCrossChar = 'x';
-    private final char mCircleChar = 'o';
-    private final Player mCrossesPlayer = new Player("Crosses", false);
-    private final Player mCirclesPlayer = new Player("Naughts", true);
+    private final int CIRCLE_DRAWABLE = R.drawable.circle;
+    private final int CIRCLE_HIGHLIGHTED = R.drawable.circle_win;
+    private final int CROSS_DRAWABLE = R.drawable.cross;
+    private final int CROSS_HIGHLIGHTED = R.drawable.cross_win;
+    private final char CROSS_CHAR = 'x';
+    private final char CIRCLE_CHAR = 'o';
+    private final Player CROSSES_PLAYER = new Player("Crosses", false);
+    private final Player CIRCLES_PLAYER = new Player("Naughts", true);
+    private final Figure CROSS_FIGURE = new Figure(CROSS_CHAR, CROSS_DRAWABLE, CROSS_HIGHLIGHTED);
+    private final Figure CIRCLE_FIGURE = new Figure(CIRCLE_CHAR, CIRCLE_DRAWABLE, CIRCLE_HIGHLIGHTED);
     private int mRowId;
     private int mColId;
 
-    GameManager() {
+    public GameManager() {
         mCells = new HashMap<>();
-        mCrossesPlayer.setFigure(mCross, mCrossChar, mCrossWinner);
-        mCirclesPlayer.setFigure(mCircle, mCircleChar, mCircleWinner);
+        CROSSES_PLAYER.setFigure(CROSS_FIGURE);
+        CIRCLES_PLAYER.setFigure(CIRCLE_FIGURE);
     }
 
     public void registerCell(int id, GridCell cell) {
@@ -70,11 +79,11 @@ public class GameManager implements TicTacToeGameManager, Serializable {
     //and put the corresponding char in the mBoard matrix.
     private void updateCell(Button button, int row, int col) {
         if (mTurnsCount % 2 == 0) {
-            button.setBackgroundResource(mCrossesPlayer.getFigureDrawable());
-            mBoard[row][col] = mCrossesPlayer.getFigureChar();
+            button.setBackgroundResource(CROSSES_PLAYER.getPlayerFigure().getFigureDrawable());
+            mBoard[row][col] = CROSSES_PLAYER.getPlayerFigure().getCharFigure();
         } else {
-            button.setBackgroundResource(mCirclesPlayer.getFigureDrawable());
-            mBoard[row][col] = mCirclesPlayer.getFigureChar();
+            button.setBackgroundResource(CIRCLES_PLAYER.getPlayerFigure().getFigureDrawable());
+            mBoard[row][col] = CIRCLES_PLAYER.getPlayerFigure().getCharFigure();
         }
         mTaken[row][col] = true;
     }
@@ -90,12 +99,12 @@ public class GameManager implements TicTacToeGameManager, Serializable {
             //Rows
             if (mBoard[i][0] == mBoard[i][1] && mBoard[i][1] == mBoard[i][2] && mBoard[i][0] != mDefault) {
                 mGameState = GameState.Finished;
-                if (mBoard[i][0] == mCrossesPlayer.getFigureChar()) {
-                    return new Winner(mCrossesPlayer, new int[]{
+                if (mBoard[i][0] == CROSSES_PLAYER.getPlayerFigure().getCharFigure()) {
+                    return new Winner(CROSSES_PLAYER, new int[]{
                             i, 0, i, 1, i, 2
                     });
                 } else {
-                    return new Winner(mCirclesPlayer, new int[]{
+                    return new Winner(CIRCLES_PLAYER, new int[]{
                             i, 0, i, 1, i, 2
                     });
                 }
@@ -104,12 +113,12 @@ public class GameManager implements TicTacToeGameManager, Serializable {
             //Columns
             if (mBoard[0][i] == mBoard[1][i] && mBoard[1][i] == mBoard[2][i] && mBoard[0][i] != mDefault) {
                 mGameState = GameState.Finished;
-                if (mBoard[0][i] == mCrossesPlayer.getFigureChar()) {
-                    return new Winner(mCrossesPlayer, new int[]{
+                if (mBoard[0][i] == CROSSES_PLAYER.getPlayerFigure().getCharFigure()) {
+                    return new Winner(CROSSES_PLAYER, new int[]{
                             0, i, 1, i, 2, i
                     });
                 } else {
-                    return new Winner(mCirclesPlayer, new int[]{
+                    return new Winner(CIRCLES_PLAYER, new int[]{
                             0, i, 1, i, 2, i
                     });
                 }
@@ -119,24 +128,24 @@ public class GameManager implements TicTacToeGameManager, Serializable {
         //the diagonals are the only two options left for a win state.
         if (mBoard[0][0] == mBoard[1][1] && mBoard[1][1] == mBoard[2][2] && mBoard[0][0] != mDefault) {
             mGameState = GameState.Finished;
-            if (mBoard[0][0] == mCrossesPlayer.getFigureChar()) {
-                return new Winner(mCrossesPlayer, new int[]{
+            if (mBoard[0][0] == CROSSES_PLAYER.getPlayerFigure().getCharFigure()) {
+                return new Winner(CROSSES_PLAYER, new int[]{
                         0, 0, 1, 1, 2, 2
                 });
             } else {
-                return new Winner(mCirclesPlayer, new int[]{
+                return new Winner(CIRCLES_PLAYER, new int[]{
                         0, 0, 1, 1, 2, 2
                 });
             }
         }
         if (mBoard[2][0] == mBoard[1][1] && mBoard[1][1] == mBoard[0][2] && mBoard[0][2] != mDefault) {
             mGameState = GameState.Finished;
-            if (mBoard[2][0] == mCrossesPlayer.getFigureChar()) {
-                return new Winner(mCrossesPlayer, new int[]{
+            if (mBoard[2][0] == CROSSES_PLAYER.getPlayerFigure().getCharFigure()) {
+                return new Winner(CROSSES_PLAYER, new int[]{
                         2, 0, 1, 1, 0, 2
                 });
             } else {
-                return new Winner(mCirclesPlayer, new int[]{
+                return new Winner(CIRCLES_PLAYER, new int[]{
                         2, 0, 1, 1, 0, 2
                 });
             }
@@ -148,7 +157,12 @@ public class GameManager implements TicTacToeGameManager, Serializable {
         Player player = winner.getPlayer();
         int[] coordinates = winner.getWinningStreakCoordinates();
         for (int i = 0; i < coordinates.length - 1; i += 2) {
-            mCells.get(mIds[coordinates[i]][coordinates[i + 1]]).getCell().setBackgroundResource(player.getHighlightedFigure());
+            mCells.get(
+                    mIds[coordinates[i]][coordinates[i + 1]])
+                    .getCell()
+                    .setBackgroundResource(player
+                            .getPlayerFigure()
+                            .getFigureDrawable());
         }
     }
 
@@ -168,6 +182,11 @@ public class GameManager implements TicTacToeGameManager, Serializable {
         }
         mTurnsCount = 0;
         mGameState = GameState.InProgress;
+    }
+
+    @Override
+    public boolean isOpponentsTurn() {
+        return false;
     }
 
     public GameState getGameState () {

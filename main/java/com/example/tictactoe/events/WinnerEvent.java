@@ -1,9 +1,11 @@
-package com.example.tictactoe;
+package com.example.tictactoe.events;
+
+import com.example.tictactoe.models.Winner;
 
 public class WinnerEvent {
     private Winner mWinner;
 
-    WinnerEvent(Winner winner) {
+    public WinnerEvent(Winner winner) {
         this.mWinner = winner;
     }
 

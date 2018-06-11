@@ -1,4 +1,4 @@
-package com.example.tictactoe;
+package com.example.tictactoe.enums;
 
 public enum GameState {
     InProgress,

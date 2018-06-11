@@ -11,5 +11,11 @@
     <string name="splash_screen_img_description">Splash screen image vector.</string>
     <string name="splash_description">A project by Valentin Mihov. Source code available on https://github.com/static-motion</string>
     <string name="game_logo_description">Game Logo</string>
-    <string name="start_game">Start game</string>
+    <string name="single_screen_button">Single Screen</string>
+    <string name="nickname_status">Your nickname currently is:</string>
+    <string name="change_nickname_button">change</string>
+    <string name="create_game_button">Create game</string>
+    <string name="join_game_button">Join game</string>
+    <string name="multi_screen_button">Multi Screen</string>
+    <string name="about_button">about</string>
 </resources>

@@ -1,9 +1,20 @@
-package com.example.tictactoe;
+package com.example.tictactoe.utils;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.tictactoe.R;
+import com.example.tictactoe.interfaces.TicTacToeGameManager;
+import com.example.tictactoe.enums.GameState;
+import com.example.tictactoe.events.DeviceFoundEvent;
+import com.example.tictactoe.events.OpponentMoveEvent;
+import com.example.tictactoe.events.PlayerDisconnectedEvent;
+import com.example.tictactoe.events.SearchingForDevicesEvent;
+import com.example.tictactoe.models.Figure;
+import com.example.tictactoe.models.GridCell;
+import com.example.tictactoe.models.Player;
+import com.example.tictactoe.models.Winner;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -25,7 +36,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
-public class MultiplayerGameManager implements TicTacToeGameManager{
+public class MultiplayerGameManager implements TicTacToeGameManager {
 
     private String mPlayerName;
     private boolean mRestartRequestSent = false;
@@ -38,23 +49,25 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
     private char[][] mBoard = new char[3][3];
     private int[][] mIds = new int[3][3];
     private HashMap<Integer,GridCell> mCells;
-    private final int CIRCLE = R.drawable.circle;
+    private final int CIRCLE_DRAWABLE = R.drawable.circle;
     private final int CIRCLE_HIGHLIGHTED = R.drawable.circle_win;
-    private final int CROSS = R.drawable.cross;
+    private final int CROSS_DRAWABLE = R.drawable.cross;
     private final int CROSS_HIGHLIGHTED = R.drawable.cross_win;
+    private final char CROSS_CHAR = 'x';
+    private final char CIRCLE_CHAR = 'o';
+    private final Figure CROSS_FIGURE = new Figure(CROSS_CHAR, CROSS_DRAWABLE, CROSS_HIGHLIGHTED);
+    private final Figure CIRCLE_FIGURE = new Figure(CIRCLE_CHAR, CIRCLE_DRAWABLE, CIRCLE_HIGHLIGHTED);
     private int mTurnsCount = 0;
     private GameState mGameState = GameState.InProgress;
     private final char DEFAULT_CHAR = mBoard[0][0];
     private Player mPlayer;
     private Player mOpponent;
-    private final char CROSS_CHAR = 'x';
-    private final char CIRCLE_CHAR = 'o';
     private int mRowId;
     private int mColId;
-    private ConnectionsClient mConnectionsClient;
     private final String TAG = getClass().getSimpleName();
     private final Strategy STRATEGY = Strategy.P2P_POINT_TO_POINT;
     private final String SERVICE_ID = getClass().getCanonicalName();
+    private ConnectionsClient mConnectionsClient;
     private PayloadCallback mPayloadCallback = new PayloadCallback() {
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
@@ -62,7 +75,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
             String data = new String(payload.asBytes(), Charset.forName("UTF-8"));
             if(!data.equals("RESTART_REQUEST")){
                 int cellID = parseOpponentMove(data);
-                sendCellId(cellID);
+                EventBus.getDefault().post(new OpponentMoveEvent(cellID));
             }
             else {
                 mRestartRequestReceived = true;
@@ -74,10 +87,6 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
         public void onPayloadTransferUpdate(@NonNull String s, @NonNull PayloadTransferUpdate payloadTransferUpdate) {
         }
     };
-
-    private void sendCellId(int cellId) {
-        EventBus.getDefault().post(new CellIdEvent(cellId));
-    }
     private EndpointDiscoveryCallback mEndpointDiscoveryCallback = new EndpointDiscoveryCallback() {
         @Override
         public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
@@ -109,15 +118,6 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
         }
     };
 
-    public void connect(String endpointId, String endpointName){
-        mConnectionsClient.acceptConnection(endpointId, mPayloadCallback);
-        registerPlayers(endpointName, endpointId);
-    }
-
-    public void rejectConnection(String endpointId){
-        mConnectionsClient.rejectConnection(endpointId);
-    }
-
     private ConnectionLifecycleCallback mConnectionLifecycleCallback = new ConnectionLifecycleCallback() {
         @Override
         public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
@@ -136,8 +136,17 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
         }
     };
 
-    MultiplayerGameManager(){
+    public MultiplayerGameManager(){
         mCells = new HashMap<>();
+    }
+
+    public void connect(String endpointId, String endpointName){
+        mConnectionsClient.acceptConnection(endpointId, mPayloadCallback);
+        registerPlayers(endpointName, endpointId);
+    }
+
+    public void rejectConnection(String endpointId){
+        mConnectionsClient.rejectConnection(endpointId);
     }
 
     private void registerPlayers(String opponentName, String opponentEndpointId) {
@@ -145,17 +154,15 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
         mOpponent = new Player(opponentName, true);
         mPlayer = new Player(mPlayerName, false);
         if(mIsHost){
-            mPlayer.setFigure(CROSS, CROSS_CHAR, CROSS_HIGHLIGHTED);
-            mOpponent.setFigure(CIRCLE, CIRCLE_CHAR, CIRCLE_HIGHLIGHTED);
+            mPlayer.setFigure(CROSS_FIGURE);
+            mOpponent.setFigure(CIRCLE_FIGURE);
             mIsOpponentsTurn = false;
         }
         else {
-            mPlayer.setFigure(CIRCLE, CIRCLE_CHAR, CIRCLE_HIGHLIGHTED);
-            mOpponent.setFigure(CROSS, CROSS_CHAR, CROSS_HIGHLIGHTED);
+            mPlayer.setFigure(CIRCLE_FIGURE);
+            mOpponent.setFigure(CROSS_FIGURE);
         }
     }
-
-
 
     private void startAdvertising(){
         AdvertisingOptions.Builder builder = new AdvertisingOptions.Builder();
@@ -268,19 +275,19 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
     //and put the corresponding char in the mBoard matrix.
     private void updateCell(int row, int col) {
         if (!mIsOpponentsTurn) {
-            mBoard[row][col] = mPlayer.getFigureChar();
+            mBoard[row][col] = mPlayer.getPlayerFigure().getCharFigure();
         } else {
-            mBoard[row][col] = mOpponent.getFigureChar();
+            mBoard[row][col] = mOpponent.getPlayerFigure().getCharFigure();
         }
         mTaken[row][col] = true;
     }
 
     public void drawFigure(GridCell clickedCell){
         if (!mIsOpponentsTurn) {
-            clickedCell.getCell().setBackgroundResource(mPlayer.getFigureDrawable());
+            clickedCell.getCell().setBackgroundResource(mPlayer.getPlayerFigure().getFigureDrawable());
         }
         else {
-            clickedCell.getCell().setBackgroundResource(mOpponent.getFigureDrawable());
+            clickedCell.getCell().setBackgroundResource(mOpponent.getPlayerFigure().getFigureDrawable());
         }
     }
 
@@ -300,7 +307,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
             //Rows
             if (mBoard[i][0] == mBoard[i][1] && mBoard[i][1] == mBoard[i][2] && mBoard[i][0] != DEFAULT_CHAR) {
                 mGameState = GameState.Finished;
-                if(mBoard[i][0] == mPlayer.getFigureChar()){
+                if(mBoard[i][0] == mPlayer.getPlayerFigure().getCharFigure()){
                     return new Winner(mPlayer, new int[]{
                             i,0,i,1,i,2
                     });
@@ -314,7 +321,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
             //Columns
             if (mBoard[0][i] == mBoard[1][i] && mBoard[1][i] == mBoard[2][i] && mBoard[0][i] != DEFAULT_CHAR) {
                 mGameState = GameState.Finished;
-                if(mBoard[0][i] == mPlayer.getFigureChar()){
+                if(mBoard[0][i] == mPlayer.getPlayerFigure().getCharFigure()){
                     return new Winner(mPlayer, new int[]{
                             0,i,1,i,2,i
                     });
@@ -331,7 +338,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
         //the diagonals are the only two options left for a win state.
         if(mBoard[0][0] == mBoard[1][1] && mBoard[1][1] == mBoard[2][2] && mBoard[0][0] != DEFAULT_CHAR){
             mGameState = GameState.Finished;
-            if(mBoard[0][0] == mPlayer.getFigureChar()){
+            if(mBoard[0][0] == mPlayer.getPlayerFigure().getCharFigure()){
                 return new Winner(mPlayer, new int[]{
                     0,0,1,1,2,2
                 });
@@ -345,7 +352,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
 
         if(mBoard[2][0] == mBoard[1][1] && mBoard[1][1] == mBoard[0][2] && mBoard[0][2] != DEFAULT_CHAR){
             mGameState = GameState.Finished;
-            if(mBoard[2][0] == mPlayer.getFigureChar()){
+            if(mBoard[2][0] == mPlayer.getPlayerFigure().getCharFigure()){
                 return new Winner(mPlayer, new int[]{
                         2,0,1,1,0,2
                 });
@@ -364,7 +371,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
         Player player = winner.getPlayer();
         int[] coordinates = winner.getWinningStreakCoordinates();
         for (int i = 0; i < coordinates.length - 1; i += 2) {
-            mCells.get(mIds[coordinates[i]][coordinates[i + 1]]).getCell().setBackgroundResource(player.getHighlightedFigure());
+            mCells.get(mIds[coordinates[i]][coordinates[i + 1]]).getCell().setBackgroundResource(player.getPlayerFigure().getHighlightedFigure());
         }
     }
 
@@ -399,10 +406,6 @@ public class MultiplayerGameManager implements TicTacToeGameManager{
         else {
             startDiscovery();
         }
-    }
-
-    public void stopAllEndpoints(){
-        mConnectionsClient.stopAllEndpoints();
     }
 
     @Override

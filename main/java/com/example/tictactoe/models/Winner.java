@@ -1,10 +1,12 @@
-package com.example.tictactoe;
+package com.example.tictactoe.models;
+
+import com.example.tictactoe.models.Player;
 
 public class Winner {
     private Player mPlayer;
     private int[] mWinningStreakCoordinates;
 
-    Winner(Player player, int[] coordinates){
+    public Winner(Player player, int[] coordinates){
         mPlayer = player;
         mWinningStreakCoordinates = coordinates;
     }

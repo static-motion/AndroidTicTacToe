@@ -1,9 +1,9 @@
-package com.example.tictactoe;
+package com.example.tictactoe.events;
 
-public class CellIdEvent {
+public class OpponentMoveEvent {
     private int mCellId;
 
-    CellIdEvent(int cellId) {
+    public OpponentMoveEvent(int cellId) {
         this.mCellId = cellId;
     }
 

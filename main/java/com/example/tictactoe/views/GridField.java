@@ -1,4 +1,4 @@
-package com.example.tictactoe;
+package com.example.tictactoe.views;
 
 import android.content.Context;
 import android.util.AttributeSet;

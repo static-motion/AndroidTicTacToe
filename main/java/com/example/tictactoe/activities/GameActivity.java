@@ -1,10 +1,18 @@
-package com.example.tictactoe;
+package com.example.tictactoe.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.example.tictactoe.utils.GameManager;
+import com.example.tictactoe.enums.GameState;
+import com.example.tictactoe.models.GridCell;
+import com.example.tictactoe.models.Player;
+import com.example.tictactoe.R;
+import com.example.tictactoe.interfaces.TicTacToeGameManager;
+import com.example.tictactoe.models.Winner;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -18,7 +26,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.layout_game);
         setUpGameManager();
         mCrossesScore = findViewById(R.id.player_1_score);
         mNaughtsScore = findViewById(R.id.player_2_score);

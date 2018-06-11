@@ -1,4 +1,8 @@
-package com.example.tictactoe;
+package com.example.tictactoe.interfaces;
+
+import com.example.tictactoe.enums.GameState;
+import com.example.tictactoe.models.GridCell;
+import com.example.tictactoe.models.Winner;
 
 public interface TicTacToeGameManager {
 
@@ -15,4 +19,6 @@ public interface TicTacToeGameManager {
     GameState getGameState();
 
     void resetGame();
+
+    boolean isOpponentsTurn();
 }

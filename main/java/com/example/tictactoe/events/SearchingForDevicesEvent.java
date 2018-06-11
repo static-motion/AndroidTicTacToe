@@ -1,9 +1,9 @@
-package com.example.tictactoe;
+package com.example.tictactoe.events;
 
 public class SearchingForDevicesEvent {
     private boolean mIsSearching;
 
-    SearchingForDevicesEvent(boolean isSearching){
+    public SearchingForDevicesEvent(boolean isSearching){
         this.mIsSearching = isSearching;
     }
 
