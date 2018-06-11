@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:background="@color/colorWhite"
+    tools:context=".activities.GameActivity"
+    style="@style/Background"
     >
     <!-- Game Board -->
     <android.support.v7.widget.GridLayout
@@ -14,11 +14,11 @@
         android:layout_height="wrap_content"
         app:columnCount="3"
         app:rowCount="3"
-        android:background="@color/colorWhite"
+        android:background="@color/colorBlack"
         android:padding="0px"
         >
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.views.GridField
             android:id="@+id/btn_1"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -27,7 +27,7 @@
             app:layout_rowWeight="1"
             />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.views.GridField
             android:id="@+id/btn_2"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -35,7 +35,7 @@
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.views.GridField
             android:id="@+id/btn_3"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -43,7 +43,7 @@
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.views.GridField
             android:id="@+id/btn_4"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -53,7 +53,7 @@
             app:layout_column="0"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.views.GridField
             android:id="@+id/btn_5"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -63,7 +63,7 @@
             app:layout_column="1"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.views.GridField
             android:id="@+id/btn_6"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -73,7 +73,7 @@
             app:layout_column="2"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.views.GridField
             android:id="@+id/btn_7"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -83,7 +83,7 @@
             app:layout_column="0"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.views.GridField
             android:id="@+id/btn_8"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -93,7 +93,7 @@
             app:layout_column="1"
             app:layout_rowWeight="1" />
 
-        <com.example.tictactoe.GridBlock
+        <com.example.tictactoe.views.GridField
             android:id="@+id/btn_9"
             style="@style/GridBlock"
             android:layout_width="wrap_content"
@@ -106,77 +106,77 @@
     </android.support.v7.widget.GridLayout>
     <!-- Horizontal Grid -->
     <View
+        style="@style/GridLine"
         android:id="@+id/border_top_hor"
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="@color/colorBlack"
         />
 
     <View
+        style="@style/GridLine"
         android:id="@+id/hor_two"
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="@color/colorBlack"
         app:layout_constraintTop_toTopOf="@id/border_top_hor"
         app:layout_constraintBottom_toTopOf="@+id/hor_three"
         />
 
     <View
+        style="@style/GridLine"
         android:id="@+id/hor_three"
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="@color/colorBlack"
         app:layout_constraintTop_toBottomOf="@id/hor_two"
         app:layout_constraintBottom_toBottomOf="@+id/grid"
         />
 
     <View
+        style="@style/GridLine"
         android:id="@+id/border_bot_hor"
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="@color/colorBlack"
         app:layout_constraintBottom_toBottomOf="@id/grid"
         />
 
 
     <!-- Vertical Grid -->
     <View
+        style="@style/GridLine"
         android:id="@+id/border_top_ver"
         android:layout_width="5dp"
         android:layout_height="match_parent"
-        android:background="@color/colorBlack"
         />
 
     <View
+        style="@style/GridLine"
         android:id="@+id/border_2_ver"
         android:layout_width="5dp"
         android:layout_height="match_parent"
-        android:background="@color/colorBlack"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/border_3_ver"
         />
 
     <View
+        style="@style/GridLine"
         android:id="@+id/border_3_ver"
         android:layout_width="5dp"
         android:layout_height="match_parent"
-        android:background="@color/colorBlack"
         app:layout_constraintLeft_toRightOf="@id/border_2_ver"
         app:layout_constraintRight_toRightOf="@id/border_last_ver"
         />
 
     <View
+        style="@style/GridLine"
         android:id="@+id/border_last_ver"
         android:layout_width="5dp"
         android:layout_height="match_parent"
-        android:background="@color/colorBlack"
         app:layout_constraintRight_toRightOf="parent"
 
         />
 
     <!-- Title and stats -->
     <android.support.constraint.ConstraintLayout
-        android:background="@color/colorWhite"
+        style="@style/Statistics"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -189,6 +189,7 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.3333"
             />
+
         <android.support.constraint.Guideline
             android:id="@+id/guideline_hor_right"
             android:layout_width="wrap_content"
@@ -196,78 +197,79 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.6666"
             />
-        <TextView
-            android:id="@+id/title"
-            android:gravity="center"
-            android:textSize="50sp"
-            android:textStyle="bold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/game_title"
-            />
 
         <TextView
+            style="@style/TextStyle"
             android:id="@+id/score"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/score"
-            android:textSize="30sp"
-            app:layout_constraintTop_toBottomOf="@id/title"
+            android:textSize="35sp"
+            app:layout_constraintTop_toTopOf="parent"
             />
+
         <TextView
-            android:id="@+id/naughts"
+            style="@style/TextStyle"
+            android:id="@+id/player_2"
             android:textSize="20sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/naughts"
             app:layout_constraintTop_toBottomOf="@id/score"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/guideline_hor_left"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/guideline_hor_right"
             />
+
         <TextView
-            android:id="@+id/crosses"
+            style="@style/TextStyle"
+            android:id="@+id/player_1"
             android:textSize="20sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/crosses"
             app:layout_constraintTop_toBottomOf="@id/score"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/guideline_hor_right"
-            />
-        <TextView
-            android:id="@+id/naughtsScore"
-            android:textSize="70sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/zero"
-            app:layout_constraintTop_toBottomOf="@id/naughts"
-            app:layout_constraintRight_toLeftOf="@+id/guideline_hor_left"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-
+            app:layout_constraintRight_toLeftOf="@id/guideline_hor_left"
             />
+
         <TextView
-            android:id="@+id/crossesScore"
+            style="@style/TextStyle"
+            android:id="@+id/player_1_score"
             android:textSize="70sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/zero"
-            app:layout_constraintTop_toBottomOf="@id/crosses"
+            app:layout_constraintTop_toBottomOf="@id/player_1"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/guideline_hor_right"
             app:layout_constraintBottom_toBottomOf="parent"
+
+
+            />
+        <TextView
+            style="@style/TextStyle"
+            android:id="@+id/player_2_score"
+            android:textSize="70sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/zero"
+            app:layout_constraintTop_toBottomOf="@id/player_2"
+            app:layout_constraintRight_toLeftOf="@+id/guideline_hor_left"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             />
 
         <TextView
-            android:text="@string/starting_tip"
-            android:textSize="15sp"
+            android:id="@+id/status"
+            style="@style/TextStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintRight_toLeftOf="@id/crossesScore"
-            app:layout_constraintLeft_toRightOf="@id/naughtsScore"
-            app:layout_constraintTop_toBottomOf="@id/score"
+            android:text="@string/starting_tip"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            />
+            app:layout_constraintLeft_toRightOf="@id/player_1_score"
+            app:layout_constraintRight_toLeftOf="@id/player_2_score"
+            app:layout_constraintTop_toBottomOf="@id/score" />
     </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

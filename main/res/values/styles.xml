@@ -1,12 +1,36 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:colorBackground">@color/colorBlack</item>
+    </style>
+
+    <style name="Background">
+        <item name="android:background">@color/colorBlack</item>
     </style>
 
     <style name="GridBlock" parent="android:Widget.Button">
-        <item name="android:background">@color/colorWhite</item>
+        <item name="android:background">@color/colorBlack</item>
         <item name="android:minHeight">0dp</item>
         <item name="android:maxHeight">0dp</item>
+        <item name="android:layout_margin">10dp</item>
+    </style>
+    
+    <style name="GridLine">
+        <item name="android:background">@color/colorWhite</item>
+    </style>
+    <style name="TextStyle">
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+    <style name="Statistics">
+        <item name="android:background">@color/colorBlack</item>
+    </style>
+
+    <style name="MenuButton">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textSize">36sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 </resources>

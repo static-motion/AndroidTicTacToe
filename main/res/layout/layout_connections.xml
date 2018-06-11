@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/Background"
+    >
+
+    <android.support.v7.widget.AppCompatTextView
+        android:textSize="20sp"
+        android:textColor="@color/colorWhite"
+        android:gravity="center_horizontal"
+        android:id="@+id/nickname_status"
+        android:text="@string/nickname_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/nickname"
+        android:textSize="30sp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/nickname_status"
+        />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btn_change_nickname"
+        app:layout_constraintTop_toBottomOf="@id/nickname"
+        style="@style/MenuButton"
+        android:text="@string/change_nickname_button"
+        />
+
+    <android.support.v7.widget.AppCompatButton
+        style="@style/MenuButton"
+        android:id="@+id/btn_server"
+        android:text="@string/create_game_button"
+        app:layout_constraintBottom_toTopOf="@id/btn_client"
+        />
+
+    <android.support.v7.widget.AppCompatButton
+        style="@style/MenuButton"
+        android:id="@+id/btn_client"
+        android:text="@string/join_game_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+</android.support.constraint.ConstraintLayout>
