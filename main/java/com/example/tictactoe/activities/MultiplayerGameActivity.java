@@ -18,12 +18,12 @@ import com.example.tictactoe.utils.MultiplayerGameManager;
 import com.example.tictactoe.events.OpponentMoveEvent;
 import com.example.tictactoe.models.Player;
 import com.example.tictactoe.events.PlayerDisconnectedEvent;
-import com.example.tictactoe.utils.ProcessMoveTask;
+import com.example.tictactoe.tasks.ProcessMoveTask;
 import com.example.tictactoe.R;
 import com.example.tictactoe.events.SearchingForDevicesEvent;
 import com.example.tictactoe.models.Winner;
 import com.example.tictactoe.events.WinnerEvent;
-import com.example.tictactoe.utils.ProcessOpponentMoveTask;
+import com.example.tictactoe.tasks.ProcessOpponentMoveTask;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -147,6 +147,11 @@ public class MultiplayerGameActivity extends AppCompatActivity{
         else if (mSearchingDialog != null && mSearchingDialog.isShowing()) {
             mSearchingDialog.dismiss();
         }
+    }
+
+    @Subscribe
+    public void OnGameLobbyCreated(GameLobbyCreatedEvent event){
+        Toast.makeText(this, event.getMessage(), Toast.LENGTH_SHORT).show();
     }
 
     @Subscribe

@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Tic Tac Toe</string>
     <string name="score">SCORE</string>
-    <string name="naughts">NAUGHTS</string>
-    <string name="crosses">CROSSES</string>
+    <string name="naughts">Player 2</string>
+    <string name="crosses">Player 1</string>
     <string name="zero">0</string>
     <string name="starting_tip">Crosses go first!</string>
     <string name="crosses_win_message">Crosses win!</string>
