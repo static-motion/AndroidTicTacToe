@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.tictactoe.R;
 import com.example.tictactoe.interfaces.ChangeNicknameDialogListener;
@@ -35,6 +36,11 @@ public class ChangeNicknameDialog extends AppCompatDialogFragment {
                 .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        String nickname = mChangeNickname.getText().toString();
+                        if(nickname.length() < 3 || nickname.length() > 10){
+                            Toast.makeText(getContext(), "Nickname needs to be between 3 and 10 symbols long.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         mListener.publishNickname(mChangeNickname.getText().toString());
                     }
                 });

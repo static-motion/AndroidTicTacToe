@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.tictactoe.R;
+import com.example.tictactoe.activities.GameLobbyCreatedEvent;
 import com.example.tictactoe.interfaces.TicTacToeGameManager;
 import com.example.tictactoe.enums.GameState;
 import com.example.tictactoe.events.DeviceFoundEvent;
@@ -173,7 +174,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Advertising...");
+                        EventBus.getDefault().post(new GameLobbyCreatedEvent("Success! Awaiting connections..."));
                     }
         })
                 .addOnFailureListener(new OnFailureListener() {
@@ -232,13 +233,14 @@ public class MultiplayerGameManager implements TicTacToeGameManager {
 
     @Override
     public GridCell processMove(int id) {
+
+        if(mIsOpponentsTurn) return null;
+
         GridCell clickedCell = mCells.get(id);
         int row = clickedCell.getRow();
         int col = clickedCell.getCol();
 
-        if(mIsOpponentsTurn || mTaken[row][col]){
-            return null;
-        }
+        if(mTaken[row][col]) return null;
 
         mIsOpponentsTurn = true;
         updateCell(row, col);
@@ -274,7 +276,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager {
     //Mark the position as taken
     //and put the corresponding char in the mBoard matrix.
     private void updateCell(int row, int col) {
-        if (!mIsOpponentsTurn) {
+        if (mIsOpponentsTurn) {
             mBoard[row][col] = mPlayer.getPlayerFigure().getCharFigure();
         } else {
             mBoard[row][col] = mOpponent.getPlayerFigure().getCharFigure();
@@ -283,7 +285,7 @@ public class MultiplayerGameManager implements TicTacToeGameManager {
     }
 
     public void drawFigure(GridCell clickedCell){
-        if (!mIsOpponentsTurn) {
+        if (mIsOpponentsTurn) {
             clickedCell.getCell().setBackgroundResource(mPlayer.getPlayerFigure().getFigureDrawable());
         }
         else {

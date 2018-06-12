@@ -88,7 +88,6 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
         dialog.show(getSupportFragmentManager(), "change_nickname_dialog");
     }
 
-
     @Override
     public void onClick(View v) {
         Intent intent = new Intent(this, MultiplayerGameActivity.class);

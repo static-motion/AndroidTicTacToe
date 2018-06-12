@@ -1,7 +1,5 @@
 package com.example.tictactoe.models;
 
-import com.example.tictactoe.models.Player;
-
 public class Winner {
     private Player mPlayer;
     private int[] mWinningStreakCoordinates;
