@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class Player implements Serializable{
 
-    private String mName;
-    private boolean mIsOpponent;
+    private final String mName;
+    private final boolean mIsOpponent;
     private Figure mPlayerFigure;
     private int mWinsCount;
 

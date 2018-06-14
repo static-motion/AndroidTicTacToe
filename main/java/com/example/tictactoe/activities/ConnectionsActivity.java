@@ -1,14 +1,19 @@
 package com.example.tictactoe.activities;
 
 import android.Manifest;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.Explode;
+import android.transition.Slide;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -29,6 +34,11 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+            getWindow().setEnterTransition(new Explode());
+            getWindow().setExitTransition(new Explode());
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_connections);
         askForLocationPermission();
@@ -44,9 +54,9 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
         mBtnServer = findViewById(R.id.btn_server);
         mBtnClient = findViewById(R.id.btn_client);
         mBtnChangeNickname = findViewById(R.id.btn_change_nickname);
-        mBtnServer.setOnClickListener(this);
-        mBtnClient.setOnClickListener(this);
-        mBtnChangeNickname.setOnClickListener(this);
+        mBtnServer.setOnClickListener(ConnectionsActivity.this);
+        mBtnClient.setOnClickListener(ConnectionsActivity.this);
+        mBtnChangeNickname.setOnClickListener(ConnectionsActivity.this);
         mUsername = findViewById(R.id.nickname);
     }
 
@@ -90,19 +100,29 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onClick(View v) {
-        Intent intent = new Intent(this, MultiplayerGameActivity.class);
-        intent.putExtra("PLAYER_NAME", mNicknameString);
         switch (v.getId()){
             case R.id.btn_server:
-                intent.putExtra("IS_HOST", true);
-                startActivity(intent);
+                launchGame(true);
                 break;
             case R.id.btn_client:
-                intent.putExtra("IS_HOST", false);
-                startActivity(intent);
+                launchGame(false);
                 break;
             case R.id.btn_change_nickname:
                 openChangeNicknameDialog();
+        }
+    }
+
+    private void launchGame(boolean isHost) {
+        Intent intent = new Intent(this, MultiplayerGameActivity.class);
+        intent.putExtra("PLAYER_NAME", mNicknameString);
+        if(isHost){
+            intent.putExtra("IS_HOST", true);
+        }
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        }
+        else {
+            startActivity(intent);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.tictactoe.tasks;
 
+import com.example.tictactoe.events.CellUpdatedEvent;
 import com.example.tictactoe.interfaces.TicTacToeGameManager;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.models.Winner;
@@ -12,7 +13,7 @@ public class ProcessOpponentMoveTask extends ProcessMoveTask {
 
     @Override
     protected Winner doInBackground(Integer... integers) {
-        GridCell cell = mManager.processOpponentMove(integers[0]);
+        CellUpdatedEvent cell = mManager.processOpponentMove(integers[0]);
         if(cell == null){
             return null;
         }

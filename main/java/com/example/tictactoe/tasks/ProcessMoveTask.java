@@ -2,21 +2,17 @@ package com.example.tictactoe.tasks;
 
 import android.os.AsyncTask;
 
-import com.example.tictactoe.interfaces.TicTacToeGameManager;
 import com.example.tictactoe.enums.GameState;
+import com.example.tictactoe.events.CellUpdatedEvent;
 import com.example.tictactoe.events.WinnerEvent;
-import com.example.tictactoe.models.GridCell;
+import com.example.tictactoe.interfaces.TicTacToeGameManager;
 import com.example.tictactoe.models.Winner;
 
 import org.greenrobot.eventbus.EventBus;
 
-public class ProcessMoveTask extends AsyncTask<Integer, GridCell, Winner> {
+public class ProcessMoveTask extends AsyncTask<Integer, CellUpdatedEvent, Winner> {
 
-    protected TicTacToeGameManager mManager;
-
-    public ProcessMoveTask(){
-
-    }
+    TicTacToeGameManager mManager;
 
     public ProcessMoveTask(TicTacToeGameManager manager){
         mManager = manager;
@@ -24,11 +20,11 @@ public class ProcessMoveTask extends AsyncTask<Integer, GridCell, Winner> {
 
     @Override
     protected Winner doInBackground(Integer... integers) {
-        GridCell cell = mManager.processMove(integers[0]);
-        if(cell == null){
+        CellUpdatedEvent event = mManager.processMove(integers[0]);
+        if(event == null){
             return null;
         }
-        publishProgress(cell);
+        publishProgress(event);
         return mManager.checkForWinner();
     }
 
@@ -40,7 +36,7 @@ public class ProcessMoveTask extends AsyncTask<Integer, GridCell, Winner> {
     }
 
     @Override
-    protected void onProgressUpdate(GridCell... values) {
+    protected void onProgressUpdate(CellUpdatedEvent... values) {
         EventBus.getDefault().post(values[0]);
     }
 }

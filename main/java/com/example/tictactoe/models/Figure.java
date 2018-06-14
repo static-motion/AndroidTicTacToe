@@ -1,9 +1,9 @@
 package com.example.tictactoe.models;
 
 public class Figure {
-    private char mFigure;
-    private int mFigureDrawable;
-    private int mHighlightedFigure;
+    private final char mFigure;
+    private final int mFigureDrawable;
+    private final int mHighlightedFigure;
 
     public Figure(char figure, int figureDrawable, int highlightedFigure){
         mFigure = figure;

@@ -10,7 +10,7 @@
     </style>
 
     <style name="GridBlock" parent="android:Widget.Button">
-        <item name="android:background">@color/colorBlack</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="android:minHeight">0dp</item>
         <item name="android:maxHeight">0dp</item>
         <item name="android:layout_margin">10dp</item>

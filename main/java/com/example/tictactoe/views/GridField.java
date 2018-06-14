@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 public class GridField extends android.support.v7.widget.AppCompatButton {
+
     public GridField(Context context) {
         super(context);
     }

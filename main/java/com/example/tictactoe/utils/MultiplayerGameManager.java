@@ -1,50 +1,25 @@
 package com.example.tictactoe.utils;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
-import android.util.Log;
-
 import com.example.tictactoe.R;
-import com.example.tictactoe.activities.GameLobbyCreatedEvent;
-import com.example.tictactoe.interfaces.TicTacToeGameManager;
 import com.example.tictactoe.enums.GameState;
-import com.example.tictactoe.events.DeviceFoundEvent;
-import com.example.tictactoe.events.OpponentMoveEvent;
-import com.example.tictactoe.events.PlayerDisconnectedEvent;
-import com.example.tictactoe.events.SearchingForDevicesEvent;
+import com.example.tictactoe.events.CellUpdatedEvent;
+import com.example.tictactoe.events.MoveProcessedEvent;
+import com.example.tictactoe.interfaces.TicTacToeGameManager;
 import com.example.tictactoe.models.Figure;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.models.Player;
 import com.example.tictactoe.models.Winner;
-import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.connection.AdvertisingOptions;
-import com.google.android.gms.nearby.connection.ConnectionInfo;
-import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
-import com.google.android.gms.nearby.connection.ConnectionResolution;
-import com.google.android.gms.nearby.connection.ConnectionsClient;
-import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
-import com.google.android.gms.nearby.connection.DiscoveryOptions;
-import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
-import com.google.android.gms.nearby.connection.Payload;
-import com.google.android.gms.nearby.connection.PayloadCallback;
-import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
-import com.google.android.gms.nearby.connection.Strategy;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class MultiplayerGameManager implements TicTacToeGameManager {
 
-    private String mPlayerName;
-    private boolean mRestartRequestSent = false;
-    private boolean mRestartRequestReceived = false;
-    private final String RESTART_REQUEST = "RESTART_REQUEST";
-    private boolean mIsHost;
-    private String mOpponentEndpointId;
+    private final String PLAYER_NAME;
+    private final boolean IS_HOST;
     private boolean mIsOpponentsTurn = true;
     private boolean[][] mTaken = new boolean[3][3];
     private char[][] mBoard = new char[3][3];
@@ -66,95 +41,17 @@ public class MultiplayerGameManager implements TicTacToeGameManager {
     private int mRowId;
     private int mColId;
     private final String TAG = getClass().getSimpleName();
-    private final Strategy STRATEGY = Strategy.P2P_POINT_TO_POINT;
-    private final String SERVICE_ID = getClass().getCanonicalName();
-    private ConnectionsClient mConnectionsClient;
-    private PayloadCallback mPayloadCallback = new PayloadCallback() {
-        @Override
-        public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
-            Log.d(TAG, new String(payload.asBytes(), Charset.forName("UTF-8")));
-            String data = new String(payload.asBytes(), Charset.forName("UTF-8"));
-            if(!data.equals("RESTART_REQUEST")){
-                int cellID = parseOpponentMove(data);
-                EventBus.getDefault().post(new OpponentMoveEvent(cellID));
-            }
-            else {
-                mRestartRequestReceived = true;
-                resetGame();
-            }
-        }
 
-        @Override
-        public void onPayloadTransferUpdate(@NonNull String s, @NonNull PayloadTransferUpdate payloadTransferUpdate) {
-        }
-    };
-    private EndpointDiscoveryCallback mEndpointDiscoveryCallback = new EndpointDiscoveryCallback() {
-        @Override
-        public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
-            Log.d(TAG, String.format("Endpoint discovered - %s, requesting connection.", discoveredEndpointInfo.getEndpointName()));
-            mConnectionsClient.stopDiscovery();
-            mConnectionsClient
-                    .requestConnection(
-                            mPlayerName,
-                            endpointId,
-                            mConnectionLifecycleCallback
-                    )
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Connection requested.");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            e.printStackTrace();
-                        }
-            });
-        }
-
-        @Override
-        public void onEndpointLost(@NonNull String endpointId) {
-            Log.d(TAG, "Endpoint lost");
-        }
-    };
-
-    private ConnectionLifecycleCallback mConnectionLifecycleCallback = new ConnectionLifecycleCallback() {
-        @Override
-        public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
-            EventBus.getDefault().post(new SearchingForDevicesEvent(false));
-            EventBus.getDefault().post(new DeviceFoundEvent(endpointId, connectionInfo.getAuthenticationToken(), connectionInfo.getEndpointName()));
-        }
-
-        @Override
-        public void onConnectionResult(@NonNull String endpointId, @NonNull ConnectionResolution connectionResolution) {
-            Log.d(TAG, connectionResolution.getStatus().getStatusMessage());
-        }
-
-        @Override
-        public void onDisconnected(@NonNull String s) {
-            EventBus.getDefault().post(new PlayerDisconnectedEvent());
-        }
-    };
-
-    public MultiplayerGameManager(){
+    public MultiplayerGameManager(boolean isHost, String playerName){
         mCells = new HashMap<>();
+        IS_HOST = isHost;
+        PLAYER_NAME = playerName;
     }
 
-    public void connect(String endpointId, String endpointName){
-        mConnectionsClient.acceptConnection(endpointId, mPayloadCallback);
-        registerPlayers(endpointName, endpointId);
-    }
-
-    public void rejectConnection(String endpointId){
-        mConnectionsClient.rejectConnection(endpointId);
-    }
-
-    private void registerPlayers(String opponentName, String opponentEndpointId) {
-        mOpponentEndpointId = opponentEndpointId;
+    public void registerPlayers(String opponentName) {
         mOpponent = new Player(opponentName, true);
-        mPlayer = new Player(mPlayerName, false);
-        if(mIsHost){
+        mPlayer = new Player(PLAYER_NAME, false);
+        if(IS_HOST){
             mPlayer.setFigure(CROSS_FIGURE);
             mOpponent.setFigure(CIRCLE_FIGURE);
             mIsOpponentsTurn = false;
@@ -163,51 +60,6 @@ public class MultiplayerGameManager implements TicTacToeGameManager {
             mPlayer.setFigure(CIRCLE_FIGURE);
             mOpponent.setFigure(CROSS_FIGURE);
         }
-    }
-
-    private void startAdvertising(){
-        AdvertisingOptions.Builder builder = new AdvertisingOptions.Builder();
-        builder.setStrategy(STRATEGY);
-        AdvertisingOptions options =  builder.build();
-        mConnectionsClient
-                .startAdvertising(mPlayerName, SERVICE_ID, mConnectionLifecycleCallback, options)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        EventBus.getDefault().post(new GameLobbyCreatedEvent("Success! Awaiting connections..."));
-                    }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Unable to start advertising");
-                        e.printStackTrace();
-                    }
-        });
-    }
-
-    private void startDiscovery(){
-        DiscoveryOptions.Builder builder = new DiscoveryOptions.Builder();
-        builder.setStrategy(STRATEGY);
-        DiscoveryOptions options =  builder.build();
-
-        mConnectionsClient
-                .startDiscovery(
-                    SERVICE_ID,
-                    mEndpointDiscoveryCallback,
-                    options)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                            EventBus.getDefault().post(new SearchingForDevicesEvent(true));
-                            Log.d(TAG, "Discovering...");
-                    }})
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                            Log.e(TAG, "Unable to starting discovering.");
-                            e.printStackTrace();
-                    }});
     }
 
     @Override
@@ -220,7 +72,8 @@ public class MultiplayerGameManager implements TicTacToeGameManager {
         }
     }
 
-    public GridCell processOpponentMove(int id){
+    public CellUpdatedEvent processOpponentMove(int id){
+        CellUpdatedEvent event = new CellUpdatedEvent(id, mOpponent.getPlayerFigure().getFigureDrawable());
         GridCell clickedCell = mCells.get(id);
         int row = clickedCell.getRow();
         int col = clickedCell.getCol();
@@ -228,11 +81,11 @@ public class MultiplayerGameManager implements TicTacToeGameManager {
         updateCell(row, col);
         mTurnsCount++;
         updateGameState();
-        return clickedCell;
+        return event;
     }
 
     @Override
-    public GridCell processMove(int id) {
+    public CellUpdatedEvent processMove(int id) {
 
         if(mIsOpponentsTurn) return null;
 
@@ -242,29 +95,18 @@ public class MultiplayerGameManager implements TicTacToeGameManager {
 
         if(mTaken[row][col]) return null;
 
+        EventBus.getDefault().post(new MoveProcessedEvent(row, col));
         mIsOpponentsTurn = true;
         updateCell(row, col);
         mTurnsCount++;
         updateGameState();
-        sendMoveCoordinates(row, col);
-        return clickedCell;
+        return new CellUpdatedEvent(id, mPlayer.getPlayerFigure().getFigureDrawable());
     }
 
-    private int parseOpponentMove(String coordinates) {
+    public int parseOpponentMove(String coordinates) {
         int row = Character.getNumericValue(coordinates.charAt(0));
         int col = Character.getNumericValue(coordinates.charAt(1));
-        return mCells.get(mIds[row][col]).getCell().getId();
-    }
-
-    private void sendMoveCoordinates(int row, int col){
-        String coords = String.valueOf(row) + String.valueOf(col);
-        mConnectionsClient.sendPayload(mOpponentEndpointId, Payload.fromBytes(coords.getBytes(Charset.forName("UTF-8"))));
-    }
-
-    public void sendRestartRequest(){
-        mConnectionsClient.sendPayload(mOpponentEndpointId, Payload.fromBytes(RESTART_REQUEST.getBytes(Charset.forName("UTF-8"))));
-        mRestartRequestSent = true;
-        resetGame();
+        return mIds[row][col];
     }
 
     private void updateGameState() {
@@ -282,15 +124,6 @@ public class MultiplayerGameManager implements TicTacToeGameManager {
             mBoard[row][col] = mOpponent.getPlayerFigure().getCharFigure();
         }
         mTaken[row][col] = true;
-    }
-
-    public void drawFigure(GridCell clickedCell){
-        if (mIsOpponentsTurn) {
-            clickedCell.getCell().setBackgroundResource(mPlayer.getPlayerFigure().getFigureDrawable());
-        }
-        else {
-            clickedCell.getCell().setBackgroundResource(mOpponent.getPlayerFigure().getFigureDrawable());
-        }
     }
 
     public boolean isOpponentsTurn(){
@@ -368,61 +201,31 @@ public class MultiplayerGameManager implements TicTacToeGameManager {
         return null;
     }
 
-    @Override
-    public void highlightWinningSequence(Winner winner) {
-        Player player = winner.getPlayer();
-        int[] coordinates = winner.getWinningStreakCoordinates();
-        for (int i = 0; i < coordinates.length - 1; i += 2) {
-            mCells.get(mIds[coordinates[i]][coordinates[i + 1]]).getCell().setBackgroundResource(player.getPlayerFigure().getHighlightedFigure());
-        }
+    public int getIdWithCoordinates(int row, int col){
+        return mIds[row][col];
+    }
+
+    public GridCell getCellWithId(int id){
+        return mCells.get(id);
     }
 
     @Override
-    //Completely resets the board state, moves count, winner and status text
-    public void resetGame(){
-        if(!(mRestartRequestSent && mRestartRequestReceived)){
-            return;
-        }
-
-        mRestartRequestSent = false;
-        mRestartRequestReceived = false;
-
-        for (int i = 0; i < mTaken[0].length; i++) {
-            for (int j = 0; j < mTaken[1].length; j++) {
-                mCells.get(mIds[i][j]).getCell().setBackgroundResource(R.color.colorBlack);
-                mBoard[i][j] = DEFAULT_CHAR;
-                mTaken[i][j] = false;
+    public Queue<Integer> resetGame(){
+        Queue<Integer> ids = new LinkedList<>();
+        for (int row = 0; row < mTaken[0].length; row++) {
+            for (int col = 0; col < mTaken[1].length; col++) {
+                ids.add(mIds[row][col]);
+                mBoard[row][col] = DEFAULT_CHAR;
+                mTaken[row][col] = false;
             }
         }
         mTurnsCount = 0;
         mGameState = GameState.InProgress;
-    }
-
-    public void initialize(Context context, boolean isHost, String playerName) {
-        mConnectionsClient = Nearby.getConnectionsClient(context.getApplicationContext());
-        mIsHost = isHost;
-        mPlayerName = playerName;
-        if(isHost){
-            startAdvertising();
-        }
-        else {
-            startDiscovery();
-        }
+        return ids;
     }
 
     @Override
     public GameState getGameState(){
         return mGameState;
-    }
-
-    public void stopDiscovery() {
-        mConnectionsClient.stopDiscovery();
-    }
-
-    public void shutdown(){
-        mConnectionsClient.stopDiscovery();
-        mConnectionsClient.stopAdvertising();
-        mConnectionsClient.stopAllEndpoints();
-        mCells.clear();
     }
 }
