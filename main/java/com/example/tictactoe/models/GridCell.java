@@ -19,4 +19,9 @@ public class GridCell implements Serializable {
     public int getCol(){
         return mCol;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Row: %d, Col: %d", mRow, mCol);
+    }
 }

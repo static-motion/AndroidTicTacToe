@@ -1,11 +1,8 @@
 package com.example.tictactoe.interfaces;
 
-import com.example.tictactoe.enums.GameState;
 import com.example.tictactoe.events.CellUpdatedEvent;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.models.Winner;
-
-import java.util.Queue;
 
 public interface TicTacToeGameManager {
 
@@ -17,9 +14,13 @@ public interface TicTacToeGameManager {
 
     CellUpdatedEvent processOpponentMove(int id);
 
-    GameState getGameState();
+    boolean isFinished();
 
-    Queue<Integer> resetGame();
+    void resetGame();
 
-    boolean isOpponentsTurn();
+    void switchCurrentPlayer();
+
+     Board getBoard();
+
+     void registerPlayers(String opponentName);
 }

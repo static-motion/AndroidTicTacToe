@@ -41,6 +41,7 @@ public class ConnectionManager {
     private final String RESTART_REQUEST = "RESTART_REQUEST";
     private ConnectionsClient mConnectionsClient;
     private String mOpponentEndpointId;
+    private String mEndpointName;
     private PayloadCallback mPayloadCallback = new PayloadCallback() {
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
@@ -63,7 +64,8 @@ public class ConnectionManager {
         @Override
         public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
             mOpponentEndpointId = endpointId;
-            EventBus.getDefault().post(new DeviceFoundEvent(endpointId, connectionInfo.getAuthenticationToken(), connectionInfo.getEndpointName()));
+            mEndpointName = connectionInfo.getEndpointName();
+            EventBus.getDefault().post(new DeviceFoundEvent(endpointId, connectionInfo.getAuthenticationToken(), mEndpointName));
         }
 
         @Override
@@ -73,7 +75,7 @@ public class ConnectionManager {
 
         @Override
         public void onDisconnected(@NonNull String s) {
-            EventBus.getDefault().post(new PlayerDisconnectedEvent(s));
+            EventBus.getDefault().post(new PlayerDisconnectedEvent(mEndpointName));
         }
     };
 
@@ -129,7 +131,7 @@ public class ConnectionManager {
     }
 
     public ConnectionManager(String playerName, Context context) {
-        this.PLAYER_NAME = playerName;
+        PLAYER_NAME = playerName;
         mConnectionsClient = Nearby.getConnectionsClient(context);
     }
 
@@ -174,6 +176,7 @@ public class ConnectionManager {
 
     public void connect(String endpointId, String endpointName){
         mConnectionsClient.acceptConnection(endpointId, mPayloadCallback);
+        mEndpointName = endpointName;
     }
 
     public void rejectConnection(String endpointId){

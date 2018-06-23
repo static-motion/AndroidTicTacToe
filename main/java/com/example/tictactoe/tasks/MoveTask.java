@@ -10,28 +10,36 @@ import com.example.tictactoe.models.Winner;
 
 import org.greenrobot.eventbus.EventBus;
 
-public class ProcessMoveTask extends AsyncTask<Integer, CellUpdatedEvent, Winner> {
+public class MoveTask extends AsyncTask<Integer, CellUpdatedEvent, Winner> {
 
     TicTacToeGameManager mManager;
-
-    public ProcessMoveTask(TicTacToeGameManager manager){
+    boolean wasValid = true;
+    public MoveTask(TicTacToeGameManager manager){
         mManager = manager;
     }
 
     @Override
     protected Winner doInBackground(Integer... integers) {
-        CellUpdatedEvent event = mManager.processMove(integers[0]);
+        CellUpdatedEvent event = processMove(integers[0]);
         if(event == null){
+            wasValid = false;
             return null;
         }
         publishProgress(event);
         return mManager.checkForWinner();
     }
 
+    protected CellUpdatedEvent processMove(int id) {
+        return mManager.processMove(id);
+    }
+
     @Override
     protected void onPostExecute(Winner winner) {
-        if(winner != null || mManager.getGameState() == GameState.Finished){
+        if(winner != null || mManager.isFinished()){
             EventBus.getDefault().post(new WinnerEvent(winner));
+        }
+        if(wasValid){
+            mManager.switchCurrentPlayer();
         }
     }
 

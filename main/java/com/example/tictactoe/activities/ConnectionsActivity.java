@@ -11,7 +11,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Explode;
-import android.transition.Slide;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -41,9 +40,14 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_connections);
-        askForLocationPermission();
         configureUI();
         setNickname();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        askForLocationPermission();
     }
 
     private void displayNickname() {

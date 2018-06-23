@@ -1,5 +1,6 @@
 package com.example.tictactoe.views;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,7 +23,6 @@ public class ChangeNicknameDialog extends AppCompatDialogFragment {
 
     @Override @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.layout_dialog, null);
@@ -44,7 +44,6 @@ public class ChangeNicknameDialog extends AppCompatDialogFragment {
                         mListener.publishNickname(mChangeNickname.getText().toString());
                     }
                 });
-
         mChangeNickname = view.findViewById(R.id.edit_text_change_nickname);
 
         return builder.create();

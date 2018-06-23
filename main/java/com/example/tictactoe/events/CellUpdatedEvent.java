@@ -1,19 +1,21 @@
 package com.example.tictactoe.events;
 
+import com.example.tictactoe.models.GridCell;
+
 public class CellUpdatedEvent {
-    private int cellId;
     private int playerFigure;
+    private GridCell cell;
 
-    public CellUpdatedEvent(int cellId, int playerFigure) {
-        this.cellId = cellId;
+    public CellUpdatedEvent(GridCell cell, int playerFigure) {
+        this.cell = cell;
         this.playerFigure = playerFigure;
-    }
-
-    public int getCellId() {
-        return cellId;
     }
 
     public int getPlayerFigure() {
         return playerFigure;
+    }
+
+    public GridCell getCell() {
+        return cell;
     }
 }

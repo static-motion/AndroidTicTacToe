@@ -5,7 +5,7 @@
     <string name="crosses">Player 1</string>
     <string name="zero">0</string>
     <string name="starting_tip">Crosses go first!</string>
-    <string name="tie_endgame_message">It\'s a tie!</string>
+    <string name="tie_endgame_message">Draw!</string>
     <string name="game_logo_description">Game Logo</string>
     <string name="single_screen_button">Single Screen</string>
     <string name="nickname_status">Your nickname currently is:</string>
