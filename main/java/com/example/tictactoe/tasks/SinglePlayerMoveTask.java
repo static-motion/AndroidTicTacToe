@@ -1,6 +1,5 @@
 package com.example.tictactoe.tasks;
 
-import com.example.tictactoe.enums.GameState;
 import com.example.tictactoe.events.MoveProcessedEvent;
 import com.example.tictactoe.events.WinnerEvent;
 import com.example.tictactoe.interfaces.TicTacToeGameManager;

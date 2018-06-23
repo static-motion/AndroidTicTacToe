@@ -17,36 +17,30 @@ public class MinimaxAIPlayer implements AIPlayer {
     public GridCell makeMove(com.example.tictactoe.interfaces.Board board) {
         mBoard = board;
         Move move =  minimax(4, 'o', Integer.MIN_VALUE, Integer.MAX_VALUE);
-        //Log.d("MINIMAX AI PLAYER", "Row: " + move.getRow());
-        //Log.d("MINIMAX AI PLAYER", "Col: " + move.getCol()) ;
         return new GridCell(move.getRow(), move.getCol());
     }
 
     private Move minimax(int depth, char player, int alpha, int beta) {
-        // Generate possible next moves in a list of int[2] of {row, col}.
         List<GridCell> nextMoves = availableMoves();
 
-        // mySeed is maximizing; while oppSeed is minimizing
         int score;
         int bestRow = -1;
         int bestCol = -1;
 
         if (nextMoves.isEmpty() || depth == 0) {
-            // Game over or depth reached, evaluate score
             score = evaluate();
             return new Move(bestRow, bestCol, score);
         } else {
             for (GridCell cell : nextMoves) {
-                // try this move for the current "player"
                 mBoard.setMove(cell.getRow(), cell.getCol(), player);
-                if (player == 'o') {  // mySeed (computer) is maximizing player
+                if (player == 'o') {
                     score = minimax(depth - 1, 'x', alpha, beta).getScore();
                     if (score > alpha) {
                         alpha = score;
                         bestRow = cell.getRow();
                         bestCol = cell.getCol();
                     }
-                } else {  // oppSeed is minimizing player
+                } else {
                     score = minimax(depth - 1, 'o', alpha, beta).getScore();
                     if (score < beta) {
                         beta = score;
@@ -106,38 +100,38 @@ public class MinimaxAIPlayer implements AIPlayer {
 
         // Second cell
         if (mBoard.figureAt(row2, col2) == aiPlayer) {
-            if (score == 1) {   // cell1 is mySeed
+            if (score == 1) {
                 score = 10;
-            } else if (score == -1) {  // cell1 is oppSeed
+            } else if (score == -1) {
                 return 0;
-            } else {  // cell1 is empty
+            } else {
                 score = 1;
             }
         } else if (mBoard.figureAt(row2, col2) == hPlayer) {
-            if (score == -1) { // cell1 is oppSeed
+            if (score == -1) {
                 score = -10;
-            } else if (score == 1) { // cell1 is mySeed
+            } else if (score == 1) {
                 return 0;
-            } else {  // cell1 is empty
+            } else {
                 score = -1;
             }
         }
 
         // Third cell
         if (mBoard.figureAt(row3, col3) == aiPlayer) {
-            if (score > 0) {  // cell1 and/or cell2 is mySeed
+            if (score > 0) {
                 score *= 10;
-            } else if (score < 0) {  // cell1 and/or cell2 is oppSeed
+            } else if (score < 0) {
                 return 0;
-            } else {  // cell1 and cell2 are empty
+            } else {
                 score = 1;
             }
         } else if (mBoard.figureAt(row3, col3) == hPlayer) {
-            if (score < 0) {  // cell1 and/or cell2 is oppSeed
+            if (score < 0) {
                 score *= 10;
-            } else if (score > 1) {  // cell1 and/or cell2 is mySeed
+            } else if (score > 1) {
                 return 0;
-            } else {  // cell1 and cell2 are empty
+            } else {
                 score = -1;
             }
         }
@@ -162,8 +156,6 @@ public class MinimaxAIPlayer implements AIPlayer {
             }
         }
 
-        //Checking the two diagonals for 3 identical chars. Since the rows and columns are already checked
-        //the diagonals are the only two options left for a win state.
         return (mBoard.figureAt(0, 0) == mBoard.figureAt(1, 1)
                 && mBoard.figureAt(1, 1) == mBoard.figureAt(2, 2)
                 && mBoard.figureAt(0, 0) == player)

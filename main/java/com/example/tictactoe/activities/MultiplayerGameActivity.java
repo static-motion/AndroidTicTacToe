@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.transition.Explode;
+import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -22,6 +24,7 @@ import com.example.tictactoe.tasks.MoveTask;
 import com.example.tictactoe.tasks.OpponentMoveTask;
 import com.example.tictactoe.utils.ConnectionManager;
 import com.example.tictactoe.utils.MultiplayerGameManager;
+import com.example.tictactoe.utils.Stopwatch;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -31,25 +34,30 @@ public class MultiplayerGameActivity extends GameActivity{
     private ConnectionManager mConnectionManager;
     private ProgressDialog mSearchingDialog;
     private boolean mIsHost;
+    private View.OnClickListener mListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(manager.isFinished()){
+                mConnectionManager.sendRestartRequest();
+                return;
+            }
+            processMove(v.getId());
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-            getWindow().setEnterTransition(new Explode());
-            getWindow().setExitTransition(new Explode());
-        }
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_game);
-        loadUI();
+        configureActivity();
     }
 
-
-    private void loadUI() {
+    @Override
+    protected void configureActivity() {
         mStatus = findViewById(R.id.status);
         mStatus.setKeepScreenOn(true);
         mPlayer = findViewById(R.id.player_1);
-        mPlayer.setText(getIntent().getStringExtra("PLAYER_NAME"));
+        mPlayerName = getIntent().getStringExtra("PLAYER_NAME");
+        mPlayer.setText(mPlayerName);
         mPlayerScore = findViewById(R.id.player_1_score);
         mOpponentScore = findViewById(R.id.player_2_score);
         mOpponent = findViewById(R.id.player_2);
@@ -58,10 +66,13 @@ public class MultiplayerGameActivity extends GameActivity{
 
 
     protected void setupConnectivity() {
+        Stopwatch watch = new Stopwatch();
+        watch.start();
         new Thread(){
             @Override
             public void run() {
-
+                Stopwatch watch = new Stopwatch();
+                watch.start();
                 mIsHost = getIntent().getBooleanExtra("IS_HOST", false);
                 mConnectionManager = new ConnectionManager(mPlayer.getText().toString(), getApplicationContext());
                 if(mIsHost){
@@ -70,8 +81,12 @@ public class MultiplayerGameActivity extends GameActivity{
                 else {
                     mConnectionManager.startDiscovery();
                 }
+                watch.stop();
+                Log.d(TAG, String.format("Thread execution took: %dms", watch.elapsed()));
             }
         }.start();
+        watch.stop();
+        Log.d(TAG, String.format("Thread creation took: %dms", watch.elapsed()));
     }
 
     private void processMove(int id){
@@ -116,8 +131,9 @@ public class MultiplayerGameActivity extends GameActivity{
                 true, true, new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
+
                         mConnectionManager.stopDiscovery();
-                        Toast.makeText(MultiplayerGameActivity.this,
+                        Toast.makeText(getApplicationContext(),
                                 "Searching for other devices canceled", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -126,7 +142,8 @@ public class MultiplayerGameActivity extends GameActivity{
 
     @Override
     protected void setupGame(String opponentName) {
-        manager = new MultiplayerGameManager(mIsHost, "Goshkata");
+
+        manager = new MultiplayerGameManager(mIsHost, mPlayerName);
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 manager.registerCell(mIds[row][col], new GridCell(row, col));
@@ -151,8 +168,8 @@ public class MultiplayerGameActivity extends GameActivity{
                     public void onClick(DialogInterface dialog, int which) {
                         // The user confirmed, so we can accept the connection.
                         mConnectionManager.connect(event.getEndpointId(),event.getEndpointName());
-                        setupGame(event.getEndpointName());
                         mOpponent.setText(event.getEndpointName());
+                        setupGame(event.getEndpointName());
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

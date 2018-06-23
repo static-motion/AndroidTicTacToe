@@ -21,11 +21,11 @@ public class GameManager implements TicTacToeGameManager {
     private final int CROSS_HIGHLIGHTED = R.drawable.cross_win;
     private final char CROSS_CHAR = 'x';
     private final char CIRCLE_CHAR = 'o';
-    private Player mPlayer;
-    private Player mOpponent;
+    protected Player mPlayer;
+    protected Player mOpponent;
     final String PLAYER_NAME;
-    final Figure CROSS_FIGURE = new Figure(CROSS_CHAR, CROSS_DRAWABLE, CROSS_HIGHLIGHTED);
-    final Figure CIRCLE_FIGURE = new Figure(CIRCLE_CHAR, CIRCLE_DRAWABLE, CIRCLE_HIGHLIGHTED);
+    final Figure FIGURE_CROSS = new Figure(CROSS_CHAR, CROSS_DRAWABLE, CROSS_HIGHLIGHTED);
+    final Figure FIGURE_CIRCLE = new Figure(CIRCLE_CHAR, CIRCLE_DRAWABLE, CIRCLE_HIGHLIGHTED);
     com.example.tictactoe.interfaces.Board mBoard = new Board();
     HashMap<Integer, GridCell> mCells;
     private int[][] mIds = new int[3][3];
@@ -42,9 +42,9 @@ public class GameManager implements TicTacToeGameManager {
     @Override
     public void registerPlayers(String opponentName) {
         mPlayer = new Player(PLAYER_NAME, false);
-        mPlayer.setFigure(CROSS_FIGURE);
+        mPlayer.setFigure(FIGURE_CROSS);
         mOpponent = new Player(opponentName, true);
-        mOpponent.setFigure(CIRCLE_FIGURE);
+        mOpponent.setFigure(FIGURE_CIRCLE);
         mCurrentPlayer = mPlayer;
     }
 

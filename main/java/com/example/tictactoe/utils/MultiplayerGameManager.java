@@ -11,8 +11,6 @@ import org.greenrobot.eventbus.EventBus;
 public class MultiplayerGameManager extends GameManager {
 
     private final boolean IS_HOST;
-    private Player mPlayer;
-    private Player mOpponent;
     private final String TAG = getClass().getSimpleName();
 
     public MultiplayerGameManager(boolean isHost, String playerName){
@@ -25,14 +23,14 @@ public class MultiplayerGameManager extends GameManager {
         mOpponent = new Player(opponentName, true);
         mPlayer = new Player(PLAYER_NAME, false);
         if(IS_HOST){
-            mPlayer.setFigure(CROSS_FIGURE);
-            mOpponent.setFigure(CIRCLE_FIGURE);
+            mPlayer.setFigure(FIGURE_CROSS);
+            mOpponent.setFigure(FIGURE_CIRCLE);
             mIsOpponentsTurn = false;
             mCurrentPlayer = mPlayer;
         }
         else {
-            mPlayer.setFigure(CIRCLE_FIGURE);
-            mOpponent.setFigure(CROSS_FIGURE);
+            mPlayer.setFigure(FIGURE_CIRCLE);
+            mOpponent.setFigure(FIGURE_CROSS);
             mCurrentPlayer = mOpponent;
         }
     }

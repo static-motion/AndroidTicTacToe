@@ -37,9 +37,10 @@ public class GameActivity extends AppCompatActivity{
     protected TextView mStatus;
     protected TextView mPlayer;
     protected TextView mOpponent;
+    protected String mPlayerName;
     TicTacToeGameManager manager;
-    AIPlayer mAIPlayer;
-    View.OnClickListener mListener = new View.OnClickListener() {
+    private AIPlayer mAIPlayer;
+    private View.OnClickListener mListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if(manager.isFinished()){
@@ -59,9 +60,7 @@ public class GameActivity extends AppCompatActivity{
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_game);
-        mAIPlayer = new MinimaxAIPlayer();
-        configureUI();
-        setupGame(mAIPlayer.getName());
+        configureActivity();
     }
 
     protected void setupGame(String opponentName) {
@@ -88,7 +87,7 @@ public class GameActivity extends AppCompatActivity{
         EventBus.getDefault().unregister(this);
     }
 
-    private void configureUI() {
+    protected void configureActivity() {
         mStatus = findViewById(R.id.status);
         mStatus.setKeepScreenOn(true);
         mPlayer = findViewById(R.id.player_1);
@@ -97,6 +96,8 @@ public class GameActivity extends AppCompatActivity{
         mOpponentScore = findViewById(R.id.player_2_score);
         mOpponent = findViewById(R.id.player_2);
         mOpponent.setText(mAIPlayer.getName());
+        setupGame(mAIPlayer.getName());
+        mAIPlayer = new MinimaxAIPlayer();
     }
 
     private void processMove(int id){
