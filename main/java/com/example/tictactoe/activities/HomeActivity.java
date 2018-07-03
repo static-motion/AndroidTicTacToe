@@ -8,12 +8,10 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.transition.Explode;
-import android.transition.Slide;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
-import com.example.tictactoe.utils.GameManager;
 import com.example.tictactoe.R;
 
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener {
@@ -35,19 +33,23 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.layout_home);
         mBtnStartGame = findViewById(R.id.btn_start_game);
         mBtnStartGame.setOnClickListener(this);
-        mBtnConnect = findViewById(R.id.btn_connect);
+        mBtnConnect = findViewById(R.id.btn_multiplayer);
         mBtnConnect.setOnClickListener(this);
-
+        Button btnSettings = findViewById(R.id.btn_settings);
+        btnSettings.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btn_start_game:
-                intent = new Intent(this, GameActivity.class);
+                intent = new Intent(this, DifficultyActivity.class);
                 break;
-            case R.id.btn_connect:
+            case R.id.btn_multiplayer:
                 intent = new Intent(this, ConnectionsActivity.class);
+                break;
+            case R.id.btn_settings:
+                intent = new Intent(this, SettingsActivity.class);
                 break;
         }
 

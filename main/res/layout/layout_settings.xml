@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5"
+        />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/nickname_status"
+        android:textSize="20sp"
+        android:text="Your nickname currently is:"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:textColor="@color/colorWhite"
+        android:textSize="45sp"
+        android:id="@+id/nickname_settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/nickname_status"
+        android:gravity="center"
+        />
+
+    <android.support.v7.widget.AppCompatButton
+        android:text="@string/change_nickname_button"
+        android:id="@+id/btn_change_nickname"
+        style="@style/MenuButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/nickname_settings"
+        />
+
+</android.support.constraint.ConstraintLayout>

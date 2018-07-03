@@ -1,25 +1,24 @@
 package com.example.tictactoe.interfaces;
 
-import com.example.tictactoe.enums.GameState;
 import com.example.tictactoe.events.CellUpdatedEvent;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.models.Winner;
 
-import java.util.Queue;
-
-public interface TicTacToeGameManager {
+public interface GameManagerContract {
 
     void registerCell(int id, GridCell cell);
 
     CellUpdatedEvent processMove(int id);
 
-    Winner checkForWinner();
-
     CellUpdatedEvent processOpponentMove(int id);
 
-    GameState getGameState();
+    Winner checkForWinner();
 
-    Queue<Integer> resetGame();
+    void registerPlayers(String playerName, String opponentName);
 
-    boolean isOpponentsTurn();
+    void resetGame();
+
+    void switchCurrentPlayer();
+
+    boolean isFinished();
 }

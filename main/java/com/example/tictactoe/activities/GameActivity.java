@@ -10,47 +10,39 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.tictactoe.R;
-import com.example.tictactoe.enums.GameState;
 import com.example.tictactoe.events.CellUpdatedEvent;
+import com.example.tictactoe.events.MoveProcessedEvent;
 import com.example.tictactoe.events.WinnerEvent;
+import com.example.tictactoe.interfaces.AIPlayerContract;
+import com.example.tictactoe.interfaces.GameManagerContract;
+import com.example.tictactoe.models.Board;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.models.Player;
 import com.example.tictactoe.models.Winner;
-import com.example.tictactoe.tasks.ProcessMoveTask;
-import com.example.tictactoe.utils.GameManager;
+import com.example.tictactoe.tasks.OpponentMoveTask;
+import com.example.tictactoe.tasks.SinglePlayerMoveTask;
+import com.example.tictactoe.utils.ai.DifficultySettings;
+import com.example.tictactoe.utils.game.GameManager;
+import com.example.tictactoe.utils.ai.MinimaxAIPlayer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.Queue;
+public class GameActivity extends AppCompatActivity implements View.OnClickListener{
 
-public class GameActivity extends AppCompatActivity{
-
-    private Button mButton1;
-    private Button mButton2;
-    private Button mButton3;
-    private Button mButton4;
-    private Button mButton5;
-    private Button mButton6;
-    private Button mButton7;
-    private Button mButton8;
-    private Button mButton9;
-    private TextView mPlayerScore;
-    private TextView mOpponentScore;
-    private TextView mStatus;
-    private TextView mPlayer;
-    private TextView mOpponent;
-    GameManager manager;
-    View.OnClickListener mListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if(manager.getGameState() == GameState.Finished){
-                resetBoard();
-                return;
-            }
-            processMove(v.getId());
-        }
-    };
+    private AIPlayerContract mAIPlayerContract;
+    protected int[][] mIds = {{R.id.btn_1, R.id.btn_2 ,R.id.btn_3},
+                            {R.id.btn_4, R.id.btn_5, R.id.btn_6},
+                            {R.id.btn_7, R.id.btn_8, R.id.btn_9}};
+    protected Button[][] mButtons = new Button[3][3];
+    protected TextView mPlayerScore;
+    protected TextView mOpponentScore;
+    protected TextView mStatus;
+    protected TextView mPlayer;
+    protected TextView mOpponent;
+    protected String mPlayerName;
+    protected GameManagerContract manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,21 +53,7 @@ public class GameActivity extends AppCompatActivity{
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_game);
-        configureUI();
-        setupManager();
-    }
-
-    private void setupManager() {
-        manager = new GameManager();
-        manager.registerCell(R.id.btn_1, new GridCell(0, 0));
-        manager.registerCell(R.id.btn_2, new GridCell(0, 1));
-        manager.registerCell(R.id.btn_3, new GridCell(0, 2));
-        manager.registerCell(R.id.btn_4, new GridCell(1, 0));
-        manager.registerCell(R.id.btn_5, new GridCell(1, 1));
-        manager.registerCell(R.id.btn_6, new GridCell(1, 2));
-        manager.registerCell(R.id.btn_7, new GridCell(2, 0));
-        manager.registerCell(R.id.btn_8, new GridCell(2, 1));
-        manager.registerCell(R.id.btn_9, new GridCell(2, 2));
+        configureActivity();
     }
 
     @Override
@@ -90,40 +68,51 @@ public class GameActivity extends AppCompatActivity{
         EventBus.getDefault().unregister(this);
     }
 
-    private void configureUI() {
+    protected void configureActivity() {
         mStatus = findViewById(R.id.status);
         mStatus.setKeepScreenOn(true);
         mPlayer = findViewById(R.id.player_1);
-        mPlayer.setText("CROSSES");
+        mPlayerName = getIntent().getStringExtra("PLAYER_NAME");
+        mPlayer.setText(mPlayerName);
         mPlayerScore = findViewById(R.id.player_1_score);
         mOpponentScore = findViewById(R.id.player_2_score);
         mOpponent = findViewById(R.id.player_2);
-        mOpponent.setText("NAUGHTS");
-        mButton1 = findViewById(R.id.btn_1);
-        mButton2 = findViewById(R.id.btn_2);
-        mButton3 = findViewById(R.id.btn_3);
-        mButton4 = findViewById(R.id.btn_4);
-        mButton5 = findViewById(R.id.btn_5);
-        mButton6 = findViewById(R.id.btn_6);
-        mButton7 = findViewById(R.id.btn_7);
-        mButton8 = findViewById(R.id.btn_8);
-        mButton9 = findViewById(R.id.btn_9);
-        mButton1.setOnClickListener(mListener);
-        mButton2.setOnClickListener(mListener);
-        mButton3.setOnClickListener(mListener);
-        mButton4.setOnClickListener(mListener);
-        mButton5.setOnClickListener(mListener);
-        mButton6.setOnClickListener(mListener);
-        mButton7.setOnClickListener(mListener);
-        mButton8.setOnClickListener(mListener);
-        mButton9.setOnClickListener(mListener);
+        mAIPlayerContract = new MinimaxAIPlayer(
+                (DifficultySettings) getIntent().getParcelableExtra("DIFFICULTY")
+        );
+        mOpponent.setText(mAIPlayerContract.getName());
+        setupGame(mAIPlayerContract.getName());
     }
 
-    private void processMove(int id){
-        new ProcessMoveTask(manager).execute(id);
+    protected void setupGame(String opponentName) {
+        manager = new GameManager(Board.getInstance());
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                manager.registerCell(mIds[row][col], new GridCell(row, col));
+                mButtons[row][col] = findViewById(mIds[row][col]);
+                mButtons[row][col].setOnClickListener(this);
+            }
+        }
+        manager.registerPlayers(mPlayerName, opponentName);
+    }
+
+    protected void processMove(int id){
+        new SinglePlayerMoveTask(manager).execute(id);
     }
 
     @Subscribe
+    public void onMoveProcessed(MoveProcessedEvent event){
+        new Thread(){
+            @Override
+            public void run() {
+                GridCell cell = mAIPlayerContract.makeMove(Board.getInstance());
+                int id = mIds[cell.getRow()][cell.getCol()];
+                new OpponentMoveTask(manager).execute(id);
+            }
+        }.start();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateScore(WinnerEvent event) {
         Winner winner = event.getWinner();
         if(winner != null){
@@ -135,7 +124,7 @@ public class GameActivity extends AppCompatActivity{
             else {
                 mPlayerScore.setText(String.valueOf(player.getWinsCount()));
             }
-            mStatus.setText(String.format("%s win!", player.getName()));
+            mStatus.setText(String.format("%s wins!", player.getName()));
             highlightWinningSequence(winner);
         }
         else {
@@ -146,23 +135,33 @@ public class GameActivity extends AppCompatActivity{
     public void highlightWinningSequence(Winner winner) {
         Player player = winner.getPlayer();
         int[] coordinates = winner.getWinningStreakCoordinates();
-        int id;
         for (int i = 0; i < coordinates.length - 1; i += 2) {
-            id = manager.getIdWithCoordinates(coordinates[i], coordinates[i + 1]);
-            findViewById(id).setBackgroundResource(player.getPlayerFigure().getHighlightedFigure());
+            mButtons[coordinates[i]][coordinates[i + 1]]
+                    .setBackgroundResource(player.getPlayerFigure().getHighlightedFigure());
         }
     }
 
     public void resetBoard(){
-        Queue<Integer> ids = manager.resetGame();
-        int size = ids.size();
-        for (int i = 0; i < size; i++) {
-            findViewById(ids.remove()).setBackgroundResource(R.color.colorTransparent);
+        manager.resetGame();
+        for (Button[] mButton : mButtons) {
+            for (int col = 0; col < 3; col++) {
+                mButton[col].setBackgroundResource(R.color.colorTransparent);
+            }
         }
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void drawFigure(CellUpdatedEvent event) {
-        findViewById(event.getCellId()).setBackgroundResource(event.getPlayerFigure());
+        mButtons[event.getCell().getRow()][event.getCell().getCol()]
+                .setBackgroundResource(event.getPlayerFigure());
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(manager.isFinished()){
+            resetBoard();
+            return;
+        }
+        processMove(v.getId());
     }
 }

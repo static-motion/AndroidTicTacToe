@@ -1,13 +1,13 @@
 package com.example.tictactoe.events;
 
 public class OpponentMoveEvent {
-    private String mCellId;
+    private byte[] coordinates;
 
-    public OpponentMoveEvent(String cellId) {
-        this.mCellId = cellId;
+    public OpponentMoveEvent(byte[] coordinates) {
+        this.coordinates = coordinates;
     }
 
-    public String getCellId() {
-        return mCellId;
+    public byte[] getCoordinates() {
+        return coordinates;
     }
 }

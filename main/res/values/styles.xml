@@ -3,6 +3,19 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:colorBackground">@color/colorBlack</item>
+        <item name="colorAccent">@color/colorWhite</item>
+        <item name="colorPrimaryDark">@color/colorBlack</item>
+        <item name="android:splitMotionEvents">false</item>
+        <item name="android:windowEnableSplitTouch">false</item>
+    </style>
+
+    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:colorBackground">@color/colorBlack</item>
+        <item name="colorAccent">@color/colorWhite</item>
+    </style>
+
+    <style name="AppTheme.ProgressDialog" parent="Base.Widget.AppCompat.ProgressBar">
+        <item name="android:layout_gravity">center_vertical|center_horizontal</item>
     </style>
 
     <style name="Background">

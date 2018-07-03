@@ -5,13 +5,14 @@
     <string name="crosses">Player 1</string>
     <string name="zero">0</string>
     <string name="starting_tip">Crosses go first!</string>
-    <string name="tie_endgame_message">It\'s a tie!</string>
+    <string name="tie_endgame_message">Draw!</string>
     <string name="game_logo_description">Game Logo</string>
-    <string name="single_screen_button">Single Screen</string>
+    <string name="singleplayer_button">Singleplayer</string>
     <string name="nickname_status">Your nickname currently is:</string>
     <string name="change_nickname_button">change</string>
     <string name="create_game_button">Create game</string>
     <string name="join_game_button">Join game</string>
-    <string name="multi_screen_button">Multi Screen</string>
+    <string name="multiplayer_button">Multiplayer</string>
     <string name="about_button">about</string>
+    <string name="settings_button">Settings</string>
 </resources>
