@@ -27,21 +27,28 @@
     <android.support.v7.widget.AppCompatButton
         style="@style/MenuButton"
         android:id="@+id/btn_start_game"
-        android:text="@string/single_screen_button"
+        android:text="@string/singleplayer_button"
         app:layout_constraintTop_toBottomOf="@id/guideline_horizontal"
         />
 
     <android.support.v7.widget.AppCompatButton
         style="@style/MenuButton"
-        android:id="@+id/btn_connect"
-        android:text="@string/multi_screen_button"
+        android:id="@+id/btn_multiplayer"
+        android:text="@string/multiplayer_button"
         app:layout_constraintTop_toBottomOf="@+id/btn_start_game"
         />
 
     <android.support.v7.widget.AppCompatButton
+        style="@style/MenuButton"
+        android:id="@+id/btn_settings"
+        android:text="@string/settings_button"
+        app:layout_constraintTop_toBottomOf="@+id/btn_multiplayer"
+        />
+
+    <!--<android.support.v7.widget.AppCompatButton
         android:text="@string/about_button"
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         style="@style/MenuButton"/>
-
+-->
 </android.support.constraint.ConstraintLayout>

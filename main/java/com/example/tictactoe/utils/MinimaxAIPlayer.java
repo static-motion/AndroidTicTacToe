@@ -1,13 +1,13 @@
 package com.example.tictactoe.utils;
 
-import com.example.tictactoe.interfaces.AIPlayer;
+import com.example.tictactoe.interfaces.AIPlayerContract;
 import com.example.tictactoe.models.GridCell;
-import com.example.tictactoe.models.Move;
+import com.example.tictactoe.models.AIMoveNode;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MinimaxAIPlayer implements AIPlayer {
+public class MinimaxAIPlayer implements AIPlayerContract {
 
     private com.example.tictactoe.interfaces.Board mBoard;
     private char aiPlayer = 'o';
@@ -16,11 +16,11 @@ public class MinimaxAIPlayer implements AIPlayer {
     @Override
     public GridCell makeMove(com.example.tictactoe.interfaces.Board board) {
         mBoard = board;
-        Move move =  minimax(4, 'o', Integer.MIN_VALUE, Integer.MAX_VALUE);
-        return new GridCell(move.getRow(), move.getCol());
+        AIMoveNode AIMoveNode =  minimax(4, 'o', Integer.MIN_VALUE, Integer.MAX_VALUE);
+        return new GridCell(AIMoveNode.getRow(), AIMoveNode.getCol());
     }
 
-    private Move minimax(int depth, char player, int alpha, int beta) {
+    private AIMoveNode minimax(int depth, char player, int alpha, int beta) {
         List<GridCell> nextMoves = availableMoves();
 
         int score;
@@ -29,7 +29,7 @@ public class MinimaxAIPlayer implements AIPlayer {
 
         if (nextMoves.isEmpty() || depth == 0) {
             score = evaluate();
-            return new Move(bestRow, bestCol, score);
+            return new AIMoveNode(bestRow, bestCol, score);
         } else {
             for (GridCell cell : nextMoves) {
                 mBoard.setMove(cell.getRow(), cell.getCol(), player);
@@ -48,12 +48,10 @@ public class MinimaxAIPlayer implements AIPlayer {
                         bestCol = cell.getCol();
                     }
                 }
-                // undo move
                 mBoard.resetPosition(cell.getRow(), cell.getCol());
-                // cut-off
                 if (alpha >= beta) break;
             }
-            return new Move(bestRow, bestCol, (player == 'o') ? alpha : beta);
+            return new AIMoveNode(bestRow, bestCol, (player == 'o') ? alpha : beta);
         }
     }
 
@@ -128,7 +126,7 @@ public class MinimaxAIPlayer implements AIPlayer {
             }
         } else if (mBoard.figureAt(row3, col3) == hPlayer) {
             if (score < 0) {
-                score *= 10;
+                score *= 20;
             } else if (score > 1) {
                 return 0;
             } else {
@@ -155,7 +153,7 @@ public class MinimaxAIPlayer implements AIPlayer {
                 return true;
             }
         }
-
+        //Both diagonals
         return (mBoard.figureAt(0, 0) == mBoard.figureAt(1, 1)
                 && mBoard.figureAt(1, 1) == mBoard.figureAt(2, 2)
                 && mBoard.figureAt(0, 0) == player)
@@ -167,6 +165,6 @@ public class MinimaxAIPlayer implements AIPlayer {
 
     @Override
     public String getName() {
-        return "AI IMPOSSIBLE";
+        return "AI GODLIKE";
     }
 }

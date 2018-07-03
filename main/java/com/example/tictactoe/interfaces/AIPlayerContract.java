@@ -2,7 +2,7 @@ package com.example.tictactoe.interfaces;
 
 import com.example.tictactoe.models.GridCell;
 
-public interface AIPlayer {
+public interface AIPlayerContract {
 
     GridCell makeMove(com.example.tictactoe.interfaces.Board board);
 

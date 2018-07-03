@@ -4,23 +4,21 @@ import com.example.tictactoe.events.CellUpdatedEvent;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.models.Winner;
 
-public interface TicTacToeGameManager {
+public interface GameManagerContract {
 
     void registerCell(int id, GridCell cell);
 
     CellUpdatedEvent processMove(int id);
 
-    Winner checkForWinner();
-
     CellUpdatedEvent processOpponentMove(int id);
 
-    boolean isFinished();
+    Winner checkForWinner();
+
+    void registerPlayers(String playerName, String opponentName);
 
     void resetGame();
 
     void switchCurrentPlayer();
 
-     Board getBoard();
-
-     void registerPlayers(String opponentName);
+    boolean isFinished();
 }

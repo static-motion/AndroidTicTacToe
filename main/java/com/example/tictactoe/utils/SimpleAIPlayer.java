@@ -1,9 +1,9 @@
 package com.example.tictactoe.utils;
 
-import com.example.tictactoe.interfaces.AIPlayer;
+import com.example.tictactoe.interfaces.AIPlayerContract;
 import com.example.tictactoe.models.GridCell;
 
-public class SimpleAIPlayer implements AIPlayer {
+public class SimpleAIPlayer implements AIPlayerContract {
 
     private String mName = "AI EASY";
     private int[][] edges = {{0,0},{0,2},{2,0},{2,2}};

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.tictactoe.events.DeviceConnectedEvent;
 import com.example.tictactoe.events.DeviceFoundEvent;
 import com.example.tictactoe.events.GameLobbyCreatedEvent;
 import com.example.tictactoe.events.GameResetEvent;
@@ -32,21 +33,24 @@ import java.nio.charset.Charset;
 
 public class ConnectionManager {
 
+    private final Strategy STRATEGY = Strategy.P2P_POINT_TO_POINT;
     private final String TAG = getClass().getSimpleName();
     private final String PLAYER_NAME;
-    private final Strategy STRATEGY = Strategy.P2P_POINT_TO_POINT;
     private final String SERVICE_ID = "35f858522ad661027da8c3ab9bcb64d8";
+    private final String RESTART_REQUEST = "RESTART";
     private boolean mRestartRequestSent = false;
     private boolean mRestartRequestReceived = false;
-    private final String RESTART_REQUEST = "RESTART_REQUEST";
     private ConnectionsClient mConnectionsClient;
     private String mOpponentEndpointId;
     private String mEndpointName;
     private PayloadCallback mPayloadCallback = new PayloadCallback() {
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
-            String data = new String(payload.asBytes(), Charset.forName("UTF-8"));
-            if(data.equals(RESTART_REQUEST)){
+            byte[] data = payload.asBytes();
+
+            if(data == null) return;
+
+            if(data.length > 2){
                 mRestartRequestReceived = true;
                 announceRestart();
             }
@@ -64,13 +68,15 @@ public class ConnectionManager {
         @Override
         public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
             mOpponentEndpointId = endpointId;
-            mEndpointName = connectionInfo.getEndpointName();
-            EventBus.getDefault().post(new DeviceFoundEvent(endpointId, connectionInfo.getAuthenticationToken(), mEndpointName));
+            EventBus.getDefault().post(new DeviceFoundEvent(
+                    endpointId,
+                    connectionInfo.getAuthenticationToken(),
+                    connectionInfo.getEndpointName()));
         }
-
         @Override
         public void onConnectionResult(@NonNull String endpointId, @NonNull ConnectionResolution connectionResolution) {
             Log.d(TAG, connectionResolution.getStatus().getStatusMessage());
+            EventBus.getDefault().post(new DeviceConnectedEvent(mEndpointName));
         }
 
         @Override
@@ -163,8 +169,7 @@ public class ConnectionManager {
     }
 
     public void sendMoveCoordinates(int row, int col){
-        String coords = String.valueOf(row) + String.valueOf(col);
-        mConnectionsClient.sendPayload(mOpponentEndpointId, Payload.fromBytes(coords.getBytes(Charset.forName("UTF-8"))));
+        mConnectionsClient.sendPayload(mOpponentEndpointId, Payload.fromBytes(new byte[]{(byte)row, (byte)col}));
     }
 
     private void announceRestart(){
@@ -184,9 +189,9 @@ public class ConnectionManager {
     }
 
     public void shutdown() {
+        mConnectionsClient.stopAllEndpoints();
         mConnectionsClient.stopDiscovery();
         mConnectionsClient.stopAdvertising();
-        mConnectionsClient.stopAllEndpoints();
     }
 
     public void stopDiscovery() {

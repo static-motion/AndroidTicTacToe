@@ -3,15 +3,10 @@ package com.example.tictactoe.activities;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.os.Build;
-import android.os.Bundle;
-import android.transition.Explode;
-import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.widget.Toast;
 
 import com.example.tictactoe.R;
+import com.example.tictactoe.events.DeviceConnectedEvent;
 import com.example.tictactoe.events.DeviceFoundEvent;
 import com.example.tictactoe.events.GameLobbyCreatedEvent;
 import com.example.tictactoe.events.GameResetEvent;
@@ -19,14 +14,16 @@ import com.example.tictactoe.events.MoveProcessedEvent;
 import com.example.tictactoe.events.OpponentMoveEvent;
 import com.example.tictactoe.events.PlayerDisconnectedEvent;
 import com.example.tictactoe.events.SearchingForDevicesEvent;
+import com.example.tictactoe.models.Board;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.tasks.MoveTask;
 import com.example.tictactoe.tasks.OpponentMoveTask;
 import com.example.tictactoe.utils.ConnectionManager;
+import com.example.tictactoe.utils.Messenger;
 import com.example.tictactoe.utils.MultiplayerGameManager;
-import com.example.tictactoe.utils.Stopwatch;
 
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class MultiplayerGameActivity extends GameActivity{
 
@@ -34,21 +31,15 @@ public class MultiplayerGameActivity extends GameActivity{
     private ConnectionManager mConnectionManager;
     private ProgressDialog mSearchingDialog;
     private boolean mIsHost;
-    private View.OnClickListener mListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if(manager.isFinished()){
-                mConnectionManager.sendRestartRequest();
-                return;
-            }
-            processMove(v.getId());
-        }
-    };
+    private Messenger mMessenger;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        configureActivity();
+    public void onClick(View v) {
+        if(manager.isFinished()){
+            mConnectionManager.sendRestartRequest();
+            return;
+        }
+        processMove(v.getId());
     }
 
     @Override
@@ -61,18 +52,13 @@ public class MultiplayerGameActivity extends GameActivity{
         mPlayerScore = findViewById(R.id.player_1_score);
         mOpponentScore = findViewById(R.id.player_2_score);
         mOpponent = findViewById(R.id.player_2);
+        mMessenger = new Messenger(this);
     }
 
-
-
     protected void setupConnectivity() {
-        Stopwatch watch = new Stopwatch();
-        watch.start();
         new Thread(){
             @Override
             public void run() {
-                Stopwatch watch = new Stopwatch();
-                watch.start();
                 mIsHost = getIntent().getBooleanExtra("IS_HOST", false);
                 mConnectionManager = new ConnectionManager(mPlayer.getText().toString(), getApplicationContext());
                 if(mIsHost){
@@ -81,15 +67,12 @@ public class MultiplayerGameActivity extends GameActivity{
                 else {
                     mConnectionManager.startDiscovery();
                 }
-                watch.stop();
-                Log.d(TAG, String.format("Thread execution took: %dms", watch.elapsed()));
             }
         }.start();
-        watch.stop();
-        Log.d(TAG, String.format("Thread creation took: %dms", watch.elapsed()));
     }
 
-    private void processMove(int id){
+    @Override
+    protected void processMove(int id){
         new MoveTask(manager).execute(id);
     }
 
@@ -101,14 +84,9 @@ public class MultiplayerGameActivity extends GameActivity{
 
     @Subscribe
     public void onOpponentMoveReceived(OpponentMoveEvent event){
-        int id = parseOpponentMove(event.getCellId());
+        byte[] coords = event.getCoordinates();
+        int id = mIds[coords[0]][coords[1]];
         new OpponentMoveTask(manager).execute(id);
-    }
-
-    private int parseOpponentMove(String coordinates) {
-        int row = Character.getNumericValue(coordinates.charAt(0));
-        int col = Character.getNumericValue(coordinates.charAt(1));
-        return mIds[row][col];
     }
 
     @Override
@@ -124,34 +102,36 @@ public class MultiplayerGameActivity extends GameActivity{
         finish();
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onSearchingForDevices(SearchingForDevicesEvent event){
-
-        mSearchingDialog = ProgressDialog.show(this, "Searching for other devices...", "Press back to cancel",
-                true, true, new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-
-                        mConnectionManager.stopDiscovery();
-                        Toast.makeText(getApplicationContext(),
-                                "Searching for other devices canceled", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
+        mSearchingDialog = new ProgressDialog(this, R.style.AppTheme_ProgressDialog);
+        mSearchingDialog.setCancelable(true);
+        mSearchingDialog.setIndeterminate(true);
+        mSearchingDialog.setTitle("Searching for other devices...");
+        mSearchingDialog.setCanceledOnTouchOutside(true);
+        mSearchingDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                mConnectionManager.shutdown();
+                mMessenger.alert("Cancelled.");
+            }
+        });
+        mSearchingDialog.setMessage("Press back to cancel.");
+        mSearchingDialog.show();
     }
 
     @Override
     protected void setupGame(String opponentName) {
 
-        manager = new MultiplayerGameManager(mIsHost, mPlayerName);
+        manager = new MultiplayerGameManager(mIsHost, Board.getInstance());
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 manager.registerCell(mIds[row][col], new GridCell(row, col));
                 mButtons[row][col] = findViewById(mIds[row][col]);
-                mButtons[row][col].setOnClickListener(mListener);
+                mButtons[row][col].setOnClickListener(this);
             }
         }
-        manager.registerPlayers(opponentName);
+        manager.registerPlayers(mPlayerName, opponentName);
     }
 
     @Subscribe
@@ -161,15 +141,13 @@ public class MultiplayerGameActivity extends GameActivity{
         }
         mConnectionManager.stopDiscovery();
         mConnectionManager.stopAdvertising();
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.AppTheme_Dialog)
                 .setTitle("Accept connection to " + event.getEndpointName())
                 .setMessage("Confirm the code " + event.getAuthenticationToken() + " is also displayed on the other device.")
                 .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // The user confirmed, so we can accept the connection.
                         mConnectionManager.connect(event.getEndpointId(),event.getEndpointName());
-                        mOpponent.setText(event.getEndpointName());
-                        setupGame(event.getEndpointName());
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -183,13 +161,19 @@ public class MultiplayerGameActivity extends GameActivity{
     }
 
     @Subscribe
+    public void onDeviceConnected(DeviceConnectedEvent event){
+        mOpponent.setText(event.getEndpointName());
+        setupGame(event.getEndpointName());
+    }
+
+    @Subscribe
     public void OnGameLobbyCreated(GameLobbyCreatedEvent event){
-        Toast.makeText(this, event.getMessage(), Toast.LENGTH_SHORT).show();
+        mMessenger.alert(event.getMessage());
     }
 
     @Subscribe
     public void onPlayerDisconnected(PlayerDisconnectedEvent event){
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.AppTheme_Dialog)
                 .setTitle(event.getPlayerName() + " has disconnected!")
                 .setMessage("You will be returned back to the menu.")
                 .setPositiveButton("Okay", new DialogInterface.OnClickListener() {

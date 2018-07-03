@@ -3,6 +3,8 @@ package com.example.tictactoe.utils;
 import com.example.tictactoe.enums.GameState;
 import com.example.tictactoe.events.CellUpdatedEvent;
 import com.example.tictactoe.events.MoveProcessedEvent;
+import com.example.tictactoe.interfaces.Board;
+import com.example.tictactoe.models.Figure;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.models.Player;
 
@@ -13,24 +15,24 @@ public class MultiplayerGameManager extends GameManager {
     private final boolean IS_HOST;
     private final String TAG = getClass().getSimpleName();
 
-    public MultiplayerGameManager(boolean isHost, String playerName){
-        super(playerName);
+    public MultiplayerGameManager(boolean isHost, Board board){
+        super(board);
         IS_HOST = isHost;
     }
 
     @Override
-    public void registerPlayers(String opponentName) {
+    public void registerPlayers(String playerName, String opponentName) {
         mOpponent = new Player(opponentName, true);
-        mPlayer = new Player(PLAYER_NAME, false);
+        mPlayer = new Player(playerName, false);
         if(IS_HOST){
-            mPlayer.setFigure(FIGURE_CROSS);
-            mOpponent.setFigure(FIGURE_CIRCLE);
+            mPlayer.setFigure(Figure.FIGURE_CROSS);
+            mOpponent.setFigure(Figure.FIGURE_CIRCLE);
             mIsOpponentsTurn = false;
             mCurrentPlayer = mPlayer;
         }
         else {
-            mPlayer.setFigure(FIGURE_CIRCLE);
-            mOpponent.setFigure(FIGURE_CROSS);
+            mPlayer.setFigure(Figure.FIGURE_CIRCLE);
+            mOpponent.setFigure(Figure.FIGURE_CROSS);
             mCurrentPlayer = mOpponent;
         }
     }

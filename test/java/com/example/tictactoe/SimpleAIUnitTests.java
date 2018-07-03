@@ -1,6 +1,6 @@
 package com.example.tictactoe;
 
-import com.example.tictactoe.interfaces.AIPlayer;
+import com.example.tictactoe.interfaces.AIPlayerContract;
 import com.example.tictactoe.interfaces.Board;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.utils.MinimaxAIPlayer;
@@ -10,7 +10,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class SimpleAIUnitTests {
-    private AIPlayer player = new MinimaxAIPlayer();
+    private AIPlayerContract player = new MinimaxAIPlayer();
 
     @Test
     public void playerAboutToFork_blocksFork() {

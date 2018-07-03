@@ -1,12 +1,11 @@
 package com.example.tictactoe.tasks;
 
 import com.example.tictactoe.events.CellUpdatedEvent;
-import com.example.tictactoe.interfaces.TicTacToeGameManager;
-import com.example.tictactoe.models.Winner;
+import com.example.tictactoe.interfaces.GameManagerContract;
 
 public class OpponentMoveTask extends MoveTask {
 
-    public OpponentMoveTask(TicTacToeGameManager manager){
+    public OpponentMoveTask(GameManagerContract manager){
         super(manager);
     }
 

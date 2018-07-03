@@ -15,21 +15,18 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tictactoe.R;
-import com.example.tictactoe.interfaces.ChangeNicknameDialogListener;
-import com.example.tictactoe.views.ChangeNicknameDialog;
+import com.example.tictactoe.utils.SharedPreferencesManager;
 
-import java.util.Random;
+public class ConnectionsActivity extends AppCompatActivity implements View.OnClickListener {
 
-public class ConnectionsActivity extends AppCompatActivity implements View.OnClickListener, ChangeNicknameDialogListener{
-
-    public static final String TIC_TAC_TOE_PREFS = "TIC_TAC_TOE_PREFS";
     private Button mBtnServer;
     private Button mBtnClient;
-    private Button mBtnChangeNickname;
-    TextView mUsername;
+    private TextView mNickname;
     private String mNicknameString;
+    private boolean mTipShown = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,7 +38,8 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_connections);
         configureUI();
-        setNickname();
+        mNicknameString = getNickname();
+        displayNickname();
     }
 
     @Override
@@ -50,56 +48,28 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
         askForLocationPermission();
     }
 
+    private String getNickname() {
+        return SharedPreferencesManager.getInstance()
+                .getPreference(SharedPreferencesManager.NICKNAME);
+    }
+
     private void displayNickname() {
-        mUsername.setText(mNicknameString);
+        mNickname.setText(mNicknameString);
     }
 
     private void configureUI() {
         mBtnServer = findViewById(R.id.btn_server);
         mBtnClient = findViewById(R.id.btn_client);
-        mBtnChangeNickname = findViewById(R.id.btn_change_nickname);
-        mBtnServer.setOnClickListener(ConnectionsActivity.this);
-        mBtnClient.setOnClickListener(ConnectionsActivity.this);
-        mBtnChangeNickname.setOnClickListener(ConnectionsActivity.this);
-        mUsername = findViewById(R.id.nickname);
+        mBtnServer.setOnClickListener(this);
+        mBtnClient.setOnClickListener(this);
+        mNickname = findViewById(R.id.nickname);
+        mNickname.setOnClickListener(this);
     }
 
     private void askForLocationPermission() {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 500);
         }
-    }
-
-    private void setNickname() {
-       mNicknameString = getSharedPreferences(TIC_TAC_TOE_PREFS, MODE_PRIVATE).getString("nickname", null);
-        if(mNicknameString == null){
-            mNicknameString = "Player#" + getRandomNumber();
-            saveNickname(mNicknameString);
-        }
-        displayNickname();
-    }
-
-    private void saveNickname(String nickname) {
-        getSharedPreferences(TIC_TAC_TOE_PREFS, MODE_PRIVATE)
-                .edit()
-                .putString("nickname", nickname)
-                .apply();
-    }
-
-    @Override
-    public void publishNickname(String nickname) {
-        saveNickname(nickname);
-        mNicknameString = nickname;
-        displayNickname();
-    }
-
-    private String getRandomNumber() {
-        return String.format("%04d", new Random().nextInt(9999));
-    }
-
-    private void openChangeNicknameDialog() {
-        ChangeNicknameDialog dialog = new ChangeNicknameDialog();
-        dialog.show(getSupportFragmentManager(), "change_nickname_dialog");
     }
 
     @Override
@@ -111,8 +81,16 @@ public class ConnectionsActivity extends AppCompatActivity implements View.OnCli
             case R.id.btn_client:
                 launchGame(false);
                 break;
-            case R.id.btn_change_nickname:
-                openChangeNicknameDialog();
+            case R.id.nickname:
+                if(!mTipShown) {
+                    mTipShown = true;
+                    Toast.makeText(
+                            this,
+                            "Go back to the settings menu if you wish to change your nickname.",
+                            Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
         }
     }
 

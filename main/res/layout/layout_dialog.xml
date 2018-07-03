@@ -6,11 +6,18 @@
     android:padding="16dp"
     >
 
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/character_limit_txtvw"
+        android:text="(between x and y characters)"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <android.support.v7.widget.AppCompatEditText
         android:id="@+id/edit_text_change_nickname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text"
+        android:layout_below="@+id/character_limit_txtvw"
+        android:layout_centerHorizontal="true"
         android:focusable="true"
-        />
+        android:inputType="text" />
 </RelativeLayout>

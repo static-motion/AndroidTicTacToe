@@ -13,8 +13,9 @@ import com.example.tictactoe.R;
 import com.example.tictactoe.events.CellUpdatedEvent;
 import com.example.tictactoe.events.MoveProcessedEvent;
 import com.example.tictactoe.events.WinnerEvent;
-import com.example.tictactoe.interfaces.AIPlayer;
-import com.example.tictactoe.interfaces.TicTacToeGameManager;
+import com.example.tictactoe.interfaces.AIPlayerContract;
+import com.example.tictactoe.interfaces.GameManagerContract;
+import com.example.tictactoe.models.Board;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.models.Player;
 import com.example.tictactoe.models.Winner;
@@ -25,9 +26,11 @@ import com.example.tictactoe.utils.MinimaxAIPlayer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
-public class GameActivity extends AppCompatActivity{
+public class GameActivity extends AppCompatActivity implements View.OnClickListener{
 
+    private AIPlayerContract mAIPlayerContract;
     protected int[][] mIds = {{R.id.btn_1, R.id.btn_2 ,R.id.btn_3},
                             {R.id.btn_4, R.id.btn_5, R.id.btn_6},
                             {R.id.btn_7, R.id.btn_8, R.id.btn_9}};
@@ -38,18 +41,7 @@ public class GameActivity extends AppCompatActivity{
     protected TextView mPlayer;
     protected TextView mOpponent;
     protected String mPlayerName;
-    TicTacToeGameManager manager;
-    private AIPlayer mAIPlayer;
-    private View.OnClickListener mListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if(manager.isFinished()){
-                resetBoard();
-                return;
-            }
-            processMove(v.getId());
-        }
-    };
+    protected GameManagerContract manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,15 +56,15 @@ public class GameActivity extends AppCompatActivity{
     }
 
     protected void setupGame(String opponentName) {
-        manager = new GameManager("Goshkata");
+        manager = new GameManager(Board.getInstance());
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 manager.registerCell(mIds[row][col], new GridCell(row, col));
                 mButtons[row][col] = findViewById(mIds[row][col]);
-                mButtons[row][col].setOnClickListener(mListener);
+                mButtons[row][col].setOnClickListener(this);
             }
         }
-        manager.registerPlayers(opponentName);
+        manager.registerPlayers(mPlayerName, opponentName);
     }
 
     @Override
@@ -95,12 +87,12 @@ public class GameActivity extends AppCompatActivity{
         mPlayerScore = findViewById(R.id.player_1_score);
         mOpponentScore = findViewById(R.id.player_2_score);
         mOpponent = findViewById(R.id.player_2);
-        mOpponent.setText(mAIPlayer.getName());
-        setupGame(mAIPlayer.getName());
-        mAIPlayer = new MinimaxAIPlayer();
+        mAIPlayerContract = new MinimaxAIPlayer();
+        mOpponent.setText(mAIPlayerContract.getName());
+        setupGame(mAIPlayerContract.getName());
     }
 
-    private void processMove(int id){
+    protected void processMove(int id){
         new SinglePlayerMoveTask(manager).execute(id);
     }
 
@@ -109,14 +101,14 @@ public class GameActivity extends AppCompatActivity{
         new Thread(){
             @Override
             public void run() {
-                GridCell cell = mAIPlayer.makeMove(manager.getBoard());
+                GridCell cell = mAIPlayerContract.makeMove(Board.getInstance());
                 int id = mIds[cell.getRow()][cell.getCol()];
                 new OpponentMoveTask(manager).execute(id);
             }
         }.start();
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateScore(WinnerEvent event) {
         Winner winner = event.getWinner();
         if(winner != null){
@@ -154,9 +146,18 @@ public class GameActivity extends AppCompatActivity{
         }
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void drawFigure(CellUpdatedEvent event) {
         mButtons[event.getCell().getRow()][event.getCell().getCol()]
                 .setBackgroundResource(event.getPlayerFigure());
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(manager.isFinished()){
+            resetBoard();
+            return;
+        }
+        processMove(v.getId());
     }
 }

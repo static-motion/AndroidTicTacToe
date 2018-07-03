@@ -37,13 +37,6 @@
         />
 
     <android.support.v7.widget.AppCompatButton
-        android:id="@+id/btn_change_nickname"
-        app:layout_constraintTop_toBottomOf="@id/nickname"
-        style="@style/MenuButton"
-        android:text="@string/change_nickname_button"
-        />
-
-    <android.support.v7.widget.AppCompatButton
         style="@style/MenuButton"
         android:id="@+id/btn_server"
         android:text="@string/create_game_button"

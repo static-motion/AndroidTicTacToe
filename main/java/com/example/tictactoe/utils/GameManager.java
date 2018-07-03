@@ -1,56 +1,44 @@
 package com.example.tictactoe.utils;
 
-import com.example.tictactoe.R;
+import android.util.SparseArray;
+
 import com.example.tictactoe.enums.GameState;
 import com.example.tictactoe.events.CellUpdatedEvent;
-import com.example.tictactoe.interfaces.TicTacToeGameManager;
-import com.example.tictactoe.models.Board;
+import com.example.tictactoe.interfaces.GameManagerContract;
 import com.example.tictactoe.models.Figure;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.models.Player;
 import com.example.tictactoe.models.Winner;
 
-import java.util.HashMap;
+public class GameManager implements GameManagerContract {
 
-public class GameManager implements TicTacToeGameManager {
-
-
-    private final int CIRCLE_DRAWABLE = R.drawable.circle;
-    private final int CIRCLE_HIGHLIGHTED = R.drawable.circle_win;
-    private final int CROSS_DRAWABLE = R.drawable.cross;
-    private final int CROSS_HIGHLIGHTED = R.drawable.cross_win;
-    private final char CROSS_CHAR = 'x';
-    private final char CIRCLE_CHAR = 'o';
-    protected Player mPlayer;
-    protected Player mOpponent;
-    final String PLAYER_NAME;
-    final Figure FIGURE_CROSS = new Figure(CROSS_CHAR, CROSS_DRAWABLE, CROSS_HIGHLIGHTED);
-    final Figure FIGURE_CIRCLE = new Figure(CIRCLE_CHAR, CIRCLE_DRAWABLE, CIRCLE_HIGHLIGHTED);
-    com.example.tictactoe.interfaces.Board mBoard = new Board();
-    HashMap<Integer, GridCell> mCells;
-    private int[][] mIds = new int[3][3];
-    GameState mGameState = GameState.InProgress;
-    int mTurnsCount = 0;
-    boolean mIsOpponentsTurn = false;
+    Player mPlayer;
+    Player mOpponent;
     Player mCurrentPlayer;
+    int mTurnsCount = 0;
+    boolean mIsOpponentsTurn = true;
+    com.example.tictactoe.interfaces.Board mBoard;
+    SparseArray<GridCell> mCells;
+    GameState mGameState = GameState.InProgress;
 
-    public GameManager(String playerName) {
-        mCells = new HashMap<>();
-        PLAYER_NAME = playerName;
+    public GameManager(com.example.tictactoe.interfaces.Board board) {
+        mBoard = board;
+        mCells = new SparseArray<>();
+        resetBoardPositions();
     }
 
     @Override
-    public void registerPlayers(String opponentName) {
-        mPlayer = new Player(PLAYER_NAME, false);
-        mPlayer.setFigure(FIGURE_CROSS);
+    public void registerPlayers(String playerName, String opponentName) {
+        mPlayer = new Player(playerName, false);
+        mPlayer.setFigure(Figure.FIGURE_CROSS);
         mOpponent = new Player(opponentName, true);
-        mOpponent.setFigure(FIGURE_CIRCLE);
+        mOpponent.setFigure(Figure.FIGURE_CIRCLE);
         mCurrentPlayer = mPlayer;
+        mIsOpponentsTurn = false;
     }
 
     public void registerCell(int id, GridCell cell){
         mCells.put(id, cell);
-        mIds[cell.getRow()][cell.getCol()] = id;
     }
 
     @Override
@@ -141,7 +129,6 @@ public class GameManager implements TicTacToeGameManager {
         return null;
     }
 
-    //Completely resets the board state, moves count, winner and status text
     public void resetGame () {
         resetBoardPositions();
         resetGameState();
@@ -176,7 +163,4 @@ public class GameManager implements TicTacToeGameManager {
         return mGameState == GameState.Finished;
     }
 
-    public com.example.tictactoe.interfaces.Board getBoard() {
-        return mBoard;
-    }
 }
