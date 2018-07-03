@@ -1,4 +1,4 @@
-package com.example.tictactoe.utils;
+package com.example.tictactoe.utils.connectivity;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

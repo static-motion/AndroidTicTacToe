@@ -1,4 +1,4 @@
-package com.example.tictactoe.utils;
+package com.example.tictactoe.utils.game;
 
 import com.example.tictactoe.enums.GameState;
 import com.example.tictactoe.events.CellUpdatedEvent;

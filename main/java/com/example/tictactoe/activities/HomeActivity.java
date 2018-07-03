@@ -13,7 +13,6 @@ import android.view.Window;
 import android.widget.Button;
 
 import com.example.tictactoe.R;
-import com.example.tictactoe.utils.SharedPreferencesManager;
 
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener {
     static {
@@ -44,11 +43,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btn_start_game:
-                intent = new Intent(this, GameActivity.class);
-                intent.putExtra("PLAYER_NAME",
-                        SharedPreferencesManager
-                                .getInstance()
-                                .getPreference(SharedPreferencesManager.NICKNAME));
+                intent = new Intent(this, DifficultyActivity.class);
                 break;
             case R.id.btn_multiplayer:
                 intent = new Intent(this, ConnectionsActivity.class);

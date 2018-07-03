@@ -3,7 +3,7 @@ package com.example.tictactoe;
 import com.example.tictactoe.interfaces.AIPlayerContract;
 import com.example.tictactoe.interfaces.Board;
 import com.example.tictactoe.models.GridCell;
-import com.example.tictactoe.utils.MinimaxAIPlayer;
+import com.example.tictactoe.utils.ai.MinimaxAIPlayer;
 
 import org.junit.Test;
 

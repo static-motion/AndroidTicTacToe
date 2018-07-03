@@ -21,8 +21,9 @@ import com.example.tictactoe.models.Player;
 import com.example.tictactoe.models.Winner;
 import com.example.tictactoe.tasks.OpponentMoveTask;
 import com.example.tictactoe.tasks.SinglePlayerMoveTask;
-import com.example.tictactoe.utils.GameManager;
-import com.example.tictactoe.utils.MinimaxAIPlayer;
+import com.example.tictactoe.utils.ai.DifficultySettings;
+import com.example.tictactoe.utils.game.GameManager;
+import com.example.tictactoe.utils.ai.MinimaxAIPlayer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -55,18 +56,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         configureActivity();
     }
 
-    protected void setupGame(String opponentName) {
-        manager = new GameManager(Board.getInstance());
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                manager.registerCell(mIds[row][col], new GridCell(row, col));
-                mButtons[row][col] = findViewById(mIds[row][col]);
-                mButtons[row][col].setOnClickListener(this);
-            }
-        }
-        manager.registerPlayers(mPlayerName, opponentName);
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -83,13 +72,28 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         mStatus = findViewById(R.id.status);
         mStatus.setKeepScreenOn(true);
         mPlayer = findViewById(R.id.player_1);
-        mPlayer.setText(getIntent().getStringExtra("PLAYER_NAME"));
+        mPlayerName = getIntent().getStringExtra("PLAYER_NAME");
+        mPlayer.setText(mPlayerName);
         mPlayerScore = findViewById(R.id.player_1_score);
         mOpponentScore = findViewById(R.id.player_2_score);
         mOpponent = findViewById(R.id.player_2);
-        mAIPlayerContract = new MinimaxAIPlayer();
+        mAIPlayerContract = new MinimaxAIPlayer(
+                (DifficultySettings) getIntent().getParcelableExtra("DIFFICULTY")
+        );
         mOpponent.setText(mAIPlayerContract.getName());
         setupGame(mAIPlayerContract.getName());
+    }
+
+    protected void setupGame(String opponentName) {
+        manager = new GameManager(Board.getInstance());
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                manager.registerCell(mIds[row][col], new GridCell(row, col));
+                mButtons[row][col] = findViewById(mIds[row][col]);
+                mButtons[row][col].setOnClickListener(this);
+            }
+        }
+        manager.registerPlayers(mPlayerName, opponentName);
     }
 
     protected void processMove(int id){

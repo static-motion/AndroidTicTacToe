@@ -18,9 +18,9 @@ import com.example.tictactoe.models.Board;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.tasks.MoveTask;
 import com.example.tictactoe.tasks.OpponentMoveTask;
-import com.example.tictactoe.utils.ConnectionManager;
+import com.example.tictactoe.utils.connectivity.ConnectionManager;
 import com.example.tictactoe.utils.Messenger;
-import com.example.tictactoe.utils.MultiplayerGameManager;
+import com.example.tictactoe.utils.game.MultiplayerGameManager;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;

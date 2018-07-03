@@ -1,8 +1,6 @@
 package com.example.tictactoe.models;
 
 public class AIMoveNode extends GridCell{
-
-
     private int score;
 
     public AIMoveNode(int row, int col, int score) {

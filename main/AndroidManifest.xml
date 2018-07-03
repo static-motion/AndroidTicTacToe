@@ -43,6 +43,11 @@
                 <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
+        <activity android:name=".activities.DifficultyActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".activities.SettingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>

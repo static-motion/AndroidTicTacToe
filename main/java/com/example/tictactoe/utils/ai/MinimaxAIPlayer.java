@@ -1,22 +1,34 @@
-package com.example.tictactoe.utils;
+package com.example.tictactoe.utils.ai;
 
 import com.example.tictactoe.interfaces.AIPlayerContract;
-import com.example.tictactoe.models.GridCell;
+import com.example.tictactoe.interfaces.DifficultySettingContract;
 import com.example.tictactoe.models.AIMoveNode;
+import com.example.tictactoe.models.GridCell;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MinimaxAIPlayer implements AIPlayerContract {
 
-    private com.example.tictactoe.interfaces.Board mBoard;
+    private final int WIN_BIAS;
+    private final int LOSE_BIAS;
+    private final int DEPTH;
     private char aiPlayer = 'o';
     private char hPlayer = 'x';
+    private final String NAME;
+    private com.example.tictactoe.interfaces.Board mBoard;
+
+    public MinimaxAIPlayer(DifficultySettingContract difficultySetting) {
+        WIN_BIAS = difficultySetting.winBias();
+        LOSE_BIAS = difficultySetting.loseBias();
+        DEPTH = difficultySetting.depth();
+        NAME = difficultySetting.name();
+    }
 
     @Override
     public GridCell makeMove(com.example.tictactoe.interfaces.Board board) {
         mBoard = board;
-        AIMoveNode AIMoveNode =  minimax(4, 'o', Integer.MIN_VALUE, Integer.MAX_VALUE);
+        AIMoveNode AIMoveNode =  minimax(DEPTH, 'o', Integer.MIN_VALUE, Integer.MAX_VALUE);
         return new GridCell(AIMoveNode.getRow(), AIMoveNode.getCol());
     }
 
@@ -118,7 +130,7 @@ public class MinimaxAIPlayer implements AIPlayerContract {
         // Third cell
         if (mBoard.figureAt(row3, col3) == aiPlayer) {
             if (score > 0) {
-                score *= 10;
+                score *= WIN_BIAS;
             } else if (score < 0) {
                 return 0;
             } else {
@@ -126,7 +138,7 @@ public class MinimaxAIPlayer implements AIPlayerContract {
             }
         } else if (mBoard.figureAt(row3, col3) == hPlayer) {
             if (score < 0) {
-                score *= 20;
+                score *= LOSE_BIAS;
             } else if (score > 1) {
                 return 0;
             } else {
@@ -165,6 +177,6 @@ public class MinimaxAIPlayer implements AIPlayerContract {
 
     @Override
     public String getName() {
-        return "AI GODLIKE";
+        return NAME;
     }
 }

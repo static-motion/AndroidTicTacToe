@@ -1,4 +1,4 @@
-package com.example.tictactoe.utils;
+package com.example.tictactoe.utils.ai;
 
 import com.example.tictactoe.interfaces.AIPlayerContract;
 import com.example.tictactoe.models.GridCell;
@@ -8,9 +8,6 @@ public class SimpleAIPlayer implements AIPlayerContract {
     private String mName = "AI EASY";
     private int[][] edges = {{0,0},{0,2},{2,0},{2,2}};
     private int[][] sides = {{0,1}, {1,0}, {1,2}, {2,1}};
-
-    public SimpleAIPlayer() {
-    }
 
     @Override
     public GridCell makeMove(com.example.tictactoe.interfaces.Board board) {

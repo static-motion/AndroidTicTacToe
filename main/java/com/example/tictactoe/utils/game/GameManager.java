@@ -1,4 +1,4 @@
-package com.example.tictactoe.utils;
+package com.example.tictactoe.utils.game;
 
 import android.util.SparseArray;
 
