@@ -3,7 +3,7 @@ package com.example.tictactoe.utils.game;
 import com.example.tictactoe.enums.GameState;
 import com.example.tictactoe.events.CellUpdatedEvent;
 import com.example.tictactoe.events.MoveProcessedEvent;
-import com.example.tictactoe.interfaces.Board;
+import com.example.tictactoe.interfaces.BoardContract;
 import com.example.tictactoe.models.Figure;
 import com.example.tictactoe.models.GridCell;
 import com.example.tictactoe.models.Player;
@@ -15,7 +15,7 @@ public class MultiplayerGameManager extends GameManager {
     private final boolean IS_HOST;
     private final String TAG = getClass().getSimpleName();
 
-    public MultiplayerGameManager(boolean isHost, Board board){
+    public MultiplayerGameManager(boolean isHost, BoardContract board){
         super(board);
         IS_HOST = isHost;
     }
@@ -51,7 +51,7 @@ public class MultiplayerGameManager extends GameManager {
         updateCell(row, col);
         mIsOpponentsTurn = true;
         updateGameState();
-        return new CellUpdatedEvent(clickedCell, mPlayer.getPlayerFigure().getFigureDrawable());
+        return new CellUpdatedEvent(clickedCell, mPlayer.getFigure().getFigureDrawable());
     }
 
     @Override

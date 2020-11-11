@@ -7,37 +7,23 @@ import com.example.tictactoe.interfaces.DifficultySettingContract;
 
 public class DifficultySettings implements DifficultySettingContract, Parcelable {
 
-    private final int WIN_BIAS;
-    private final int LOSE_BIAS;
-    private final int DEPTH;
     private final String NAME;
+    private final int RANDOM_MOVE_CHANCE;
 
-    public static final DifficultySettings GODLIKE = new DifficultySettings(10, 20, 4, "AI GODLIKE");
-    public static final DifficultySettings EASY = new DifficultySettings(1, 1, 1, "AI EASY");
-    public static final DifficultySettings NORMAL = new DifficultySettings(1, 1, 2, "AI NORMAL");
-    public static final DifficultySettings HARD = new DifficultySettings(1, 1, 3, "AI HARD");
+    public static final DifficultySettings GODLIKE = new DifficultySettings("AI GODLIKE", 0);
+    public static final DifficultySettings EASY = new DifficultySettings("AI EASY", 75);
+    public static final DifficultySettings NORMAL = new DifficultySettings("AI NORMAL", 50);
+    public static final DifficultySettings HARD = new DifficultySettings("AI HARD", 25);
 
-    private DifficultySettings(int winBias, int loseBias, int depth, String name) {
-        this.WIN_BIAS = winBias;
-        this.LOSE_BIAS = loseBias;
-        this.DEPTH = depth;
+    public DifficultySettings(String name, int errorChance) {
         this.NAME = name;
+		this.RANDOM_MOVE_CHANCE = errorChance;
     }
 
-    @Override
-    public int winBias() {
-        return WIN_BIAS;
-    }
-
-    @Override
-    public int loseBias() {
-        return LOSE_BIAS;
-    }
-
-    @Override
-    public int depth() {
-        return DEPTH;
-    }
+	@Override
+	public int errorChance() {
+		return RANDOM_MOVE_CHANCE;
+	}
 
     @Override
     public String name() {
@@ -51,17 +37,13 @@ public class DifficultySettings implements DifficultySettingContract, Parcelable
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.WIN_BIAS);
-        dest.writeInt(this.LOSE_BIAS);
-        dest.writeInt(this.DEPTH);
         dest.writeString(this.NAME);
+        dest.writeInt(this.RANDOM_MOVE_CHANCE);
     }
 
     protected DifficultySettings(Parcel in) {
-        this.WIN_BIAS = in.readInt();
-        this.LOSE_BIAS = in.readInt();
-        this.DEPTH = in.readInt();
         this.NAME = in.readString();
+        this.RANDOM_MOVE_CHANCE = in.readInt();
     }
 
     public static final Parcelable.Creator<DifficultySettings> CREATOR = new Parcelable.Creator<DifficultySettings>() {

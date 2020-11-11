@@ -1,35 +1,43 @@
 package com.example.tictactoe.utils.ai;
 
 import com.example.tictactoe.interfaces.AIPlayerContract;
+import com.example.tictactoe.interfaces.BoardContract;
 import com.example.tictactoe.interfaces.DifficultySettingContract;
 import com.example.tictactoe.models.AIMoveNode;
 import com.example.tictactoe.models.GridCell;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MinimaxAIPlayer implements AIPlayerContract {
 
-    private final int WIN_BIAS;
-    private final int LOSE_BIAS;
-    private final int DEPTH;
+    private final int WIN_BIAS = 10;
+    private final int LOSE_BIAS = 20;
+    private final int DEPTH = 4;
     private char aiPlayer = 'o';
     private char hPlayer = 'x';
     private final String NAME;
-    private com.example.tictactoe.interfaces.Board mBoard;
+    private BoardContract mBoard;
+    private final int ERROR_CHANCE;
+	private Random mLottery;
 
     public MinimaxAIPlayer(DifficultySettingContract difficultySetting) {
-        WIN_BIAS = difficultySetting.winBias();
-        LOSE_BIAS = difficultySetting.loseBias();
-        DEPTH = difficultySetting.depth();
         NAME = difficultySetting.name();
+        ERROR_CHANCE = difficultySetting.errorChance();
+        mLottery = new Random();
     }
 
     @Override
-    public GridCell makeMove(com.example.tictactoe.interfaces.Board board) {
+    public GridCell makeMove(BoardContract board) {
         mBoard = board;
-        AIMoveNode AIMoveNode =  minimax(DEPTH, 'o', Integer.MIN_VALUE, Integer.MAX_VALUE);
-        return new GridCell(AIMoveNode.getRow(), AIMoveNode.getCol());
+        int error = mLottery.nextInt(100);
+        if (ERROR_CHANCE == 0 || error > ERROR_CHANCE) {
+            return minimax(DEPTH, 'o', Integer.MIN_VALUE, Integer.MAX_VALUE);
+        }
+
+        ArrayList<GridCell> moves = mBoard.availableMoves();
+        return moves.get(mLottery.nextInt(moves.size()));
     }
 
     private AIMoveNode minimax(int depth, char player, int alpha, int beta) {
@@ -68,20 +76,10 @@ public class MinimaxAIPlayer implements AIPlayerContract {
     }
 
     private ArrayList<GridCell> availableMoves(){
-        ArrayList<GridCell> moves = new ArrayList<>();
-
         if(hasWon('x') || hasWon('o')){
-            return moves;
+            return new ArrayList<>();
         }
-
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                if(!mBoard.isTaken(row, col)){
-                    moves.add(new GridCell(row, col));
-                }
-            }
-        }
-        return moves;
+        return mBoard.availableMoves();
     }
 
     private int evaluate() {
@@ -172,7 +170,6 @@ public class MinimaxAIPlayer implements AIPlayerContract {
                 || (mBoard.figureAt(2, 0) == mBoard.figureAt(1, 1)
                 && mBoard.figureAt(1, 1) == mBoard.figureAt(0, 2)
                 && mBoard.figureAt(0, 2) == player);
-
     }
 
     @Override

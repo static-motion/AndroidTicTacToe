@@ -137,15 +137,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         int[] coordinates = winner.getWinningStreakCoordinates();
         for (int i = 0; i < coordinates.length - 1; i += 2) {
             mButtons[coordinates[i]][coordinates[i + 1]]
-                    .setBackgroundResource(player.getPlayerFigure().getHighlightedFigure());
+                    .setBackgroundResource(player.getFigure().getHighlightedFigure());
         }
     }
 
     public void resetBoard(){
         manager.resetGame();
-        for (Button[] mButton : mButtons) {
-            for (int col = 0; col < 3; col++) {
-                mButton[col].setBackgroundResource(R.color.colorTransparent);
+        for (Button[] buttonArray : mButtons) {
+            for (Button button : buttonArray) {
+                button.setBackgroundResource(R.color.colorTransparent);
             }
         }
     }

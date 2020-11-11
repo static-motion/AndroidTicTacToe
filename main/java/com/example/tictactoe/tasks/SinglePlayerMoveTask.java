@@ -13,8 +13,8 @@ public class SinglePlayerMoveTask extends MoveTask {
     }
 
     @Override
-    void checkForWinner() {
-        Winner winner = mManager.checkForWinner();
+    void checkForWinner(int row, int col) {
+        Winner winner = mManager.checkForWinner(row, col);
         if(winner != null || mManager.isFinished()){
             EventBus.getDefault().post(new WinnerEvent(winner));
         }

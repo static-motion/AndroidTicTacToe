@@ -1,30 +1,32 @@
 package com.example.tictactoe.utils.ai;
 
 import com.example.tictactoe.interfaces.AIPlayerContract;
+import com.example.tictactoe.interfaces.BoardContract;
 import com.example.tictactoe.models.GridCell;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 public class SimpleAIPlayer implements AIPlayerContract {
 
     private String mName = "AI EASY";
-    private int[][] edges = {{0,0},{0,2},{2,0},{2,2}};
-    private int[][] sides = {{0,1}, {1,0}, {1,2}, {2,1}};
 
     @Override
-    public GridCell makeMove(com.example.tictactoe.interfaces.Board board) {
-        if(!board.isTaken(1,1)){
-            return new GridCell(1, 1);
-        }
-        for (int[] edge : edges) {
-            if (!board.isTaken(edge[0], edge[1])) {
-                return new GridCell(edge[0], edge[1]);
+    public GridCell makeMove(BoardContract board) {
+        ArrayList<GridCell> availableMoves = getAvailableMoves(board);
+        return availableMoves.get(new Random().nextInt(availableMoves.size()));
+    }
+
+    private ArrayList<GridCell> getAvailableMoves(BoardContract board) {
+        ArrayList<GridCell> moves = new ArrayList<>();
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                if(!board.isTaken(row, col)){
+                    moves.add(new GridCell(row, col));
+                }
             }
         }
-        for (int[] side : sides) {
-            if (!board.isTaken(side[0], side[1])) {
-                return new GridCell(side[0], side[1]);
-            }
-        }
-        return null;
+        return moves;
     }
 
     @Override

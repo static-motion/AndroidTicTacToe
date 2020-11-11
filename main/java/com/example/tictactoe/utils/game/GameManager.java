@@ -4,6 +4,7 @@ import android.util.SparseArray;
 
 import com.example.tictactoe.enums.GameState;
 import com.example.tictactoe.events.CellUpdatedEvent;
+import com.example.tictactoe.interfaces.BoardContract;
 import com.example.tictactoe.interfaces.GameManagerContract;
 import com.example.tictactoe.models.Figure;
 import com.example.tictactoe.models.GridCell;
@@ -17,11 +18,11 @@ public class GameManager implements GameManagerContract {
     Player mCurrentPlayer;
     int mTurnsCount = 0;
     boolean mIsOpponentsTurn = true;
-    com.example.tictactoe.interfaces.Board mBoard;
+    BoardContract mBoard;
     SparseArray<GridCell> mCells;
     GameState mGameState = GameState.InProgress;
 
-    public GameManager(com.example.tictactoe.interfaces.Board board) {
+    public GameManager(BoardContract board) {
         mBoard = board;
         mCells = new SparseArray<>();
         resetBoardPositions();
@@ -53,7 +54,7 @@ public class GameManager implements GameManagerContract {
         updateCell(row, col);
         updateGameState();
         mIsOpponentsTurn = true;
-        return new CellUpdatedEvent(clickedCell, mPlayer.getPlayerFigure().getFigureDrawable());
+        return new CellUpdatedEvent(clickedCell, mPlayer.getFigure().getFigureDrawable());
     }
 
     void updateGameState() {
@@ -66,7 +67,7 @@ public class GameManager implements GameManagerContract {
     @Override
     public CellUpdatedEvent processOpponentMove(int id) {
         GridCell clickedCell = mCells.get(id);
-        CellUpdatedEvent event = new CellUpdatedEvent(clickedCell, mOpponent.getPlayerFigure().getFigureDrawable());
+        CellUpdatedEvent event = new CellUpdatedEvent(clickedCell, mOpponent.getFigure().getFigureDrawable());
         int row = clickedCell.getRow();
         int col = clickedCell.getCol();
         updateCell(row, col);
@@ -76,11 +77,11 @@ public class GameManager implements GameManagerContract {
     }
 
     void updateCell(int row, int col) {
-        mBoard.setMove(row, col, mCurrentPlayer.getPlayerFigure().getCharFigure());
+        mBoard.setMove(row, col, mCurrentPlayer.getFigure().getCharFigure());
     }
 
     @Override
-    public Winner checkForWinner() {
+    public Winner checkForWinner(int row, int col) {
         //5 turns is the minimum turns count required for the game to be won.
         //No need to check the board before that.
         if(mTurnsCount < 5) {
@@ -88,34 +89,26 @@ public class GameManager implements GameManagerContract {
         }
         //Checking rows and columns for 3 identical chars.
         int[] coordinates = null;
-        char currentChar = mCurrentPlayer.getPlayerFigure().getCharFigure();
-        for (int i = 0; i < 3; i++) {
-            //Rows
-            if (mBoard.figureAt(i,0) == mBoard.figureAt(i,1)
-                    && mBoard.figureAt(i,1) == mBoard.figureAt(i,2)
-                    && mBoard.figureAt(i,0) == currentChar) {
-
-                coordinates = new int[] {i,0,i,1,i,2};
-            }
-            //Columns
-            if (mBoard.figureAt(0,i) == mBoard.figureAt(1,i)
-                    && mBoard.figureAt(1,i) == mBoard.figureAt(2,i)
-                    && mBoard.figureAt(0, i) == currentChar) {
-
-                coordinates = new int[]{0,i,1,i,2,i};
-            }
+        char currentChar = mCurrentPlayer.getFigure().getCharFigure();
+        if (mBoard.figureAt(row, 0) == mBoard.figureAt(row, 1)
+                && mBoard.figureAt(row, 0) == mBoard.figureAt(row, 2)
+                && mBoard.figureAt(row, 0) == currentChar){
+            coordinates = new int[]{row, 0, row, 1, row, 2};
         }
-
+        else if (mBoard.figureAt(0, col) == mBoard.figureAt(1, col)
+                && mBoard.figureAt(0, col) == mBoard.figureAt(2, col)
+                && mBoard.figureAt(0, col) == currentChar){
+            coordinates = new int[]{0, col, 1, col, 2, col};
+        }
         //Checking the two diagonals for 3 identical chars. Since the rows and columns are already checked
         //the diagonals are the only two options left for a win state.
-        if(mBoard.figureAt(0,0) == mBoard.figureAt(1,1)
+        else if(mBoard.figureAt(0,0) == mBoard.figureAt(1,1)
                 && mBoard.figureAt(1,1) == mBoard.figureAt(2,2)
                 && mBoard.figureAt(0,0) == currentChar) {
 
             coordinates = new int[]{0, 0, 1, 1, 2, 2};
         }
-
-        if( mBoard.figureAt(2,0) == mBoard.figureAt(1,1)
+        else if(mBoard.figureAt(2,0) == mBoard.figureAt(1,1)
                 && mBoard.figureAt(1,1) == mBoard.figureAt(0,2)
                 && mBoard.figureAt(0,2) == currentChar){
 

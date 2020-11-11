@@ -22,7 +22,7 @@ public class Player implements Serializable{
         mPlayerFigure = figure;
     }
 
-    public Figure getPlayerFigure() {
+    public Figure getFigure() {
         return mPlayerFigure;
     }
 

@@ -4,7 +4,7 @@ import com.example.tictactoe.models.GridCell;
 
 public interface AIPlayerContract {
 
-    GridCell makeMove(com.example.tictactoe.interfaces.Board board);
+    GridCell makeMove(BoardContract board);
 
     String getName();
 }

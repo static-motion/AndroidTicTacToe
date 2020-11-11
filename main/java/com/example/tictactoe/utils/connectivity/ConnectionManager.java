@@ -47,14 +47,11 @@ public class ConnectionManager {
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
             byte[] data = payload.asBytes();
-
-            if(data == null) return;
-
-            if(data.length > 2){
+            if (data == null) return;
+            if (data.length > 2) {
                 mRestartRequestReceived = true;
                 announceRestart();
-            }
-            else {
+            } else {
                 EventBus.getDefault().post(new OpponentMoveEvent(data));
             }
         }
@@ -65,6 +62,7 @@ public class ConnectionManager {
     };
 
     private ConnectionLifecycleCallback mConnectionLifecycleCallback = new ConnectionLifecycleCallback() {
+
         @Override
         public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
             mOpponentEndpointId = endpointId;
@@ -73,9 +71,10 @@ public class ConnectionManager {
                     connectionInfo.getAuthenticationToken(),
                     connectionInfo.getEndpointName()));
         }
+
         @Override
-        public void onConnectionResult(@NonNull String endpointId, @NonNull ConnectionResolution connectionResolution) {
-            Log.d(TAG, connectionResolution.getStatus().getStatusMessage());
+        public void onConnectionResult(@NonNull String endpointId, @NonNull ConnectionResolution resolution) {
+            Log.d(TAG, resolution.getStatus().getStatusMessage());
             EventBus.getDefault().post(new DeviceConnectedEvent(mEndpointName));
         }
 
@@ -86,10 +85,11 @@ public class ConnectionManager {
     };
 
     private EndpointDiscoveryCallback mEndpointDiscoveryCallback = new EndpointDiscoveryCallback() {
+
         @Override
-        public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
+        public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo endpointInfo) {
             Log.d(TAG, String.format("Endpoint discovered - %s, requesting connection.",
-                    discoveredEndpointInfo.getEndpointName()));
+                    endpointInfo.getEndpointName()));
 
             mConnectionsClient.stopDiscovery();
             mConnectionsClient
@@ -111,13 +111,14 @@ public class ConnectionManager {
                         }
                     });
         }
+
         @Override
         public void onEndpointLost(@NonNull String endpointId) {
             Log.d(TAG, "Endpoint lost");
         }
     };
 
-    public void startAdvertising(){
+    public void startAdvertising() {
         AdvertisingOptions options = new AdvertisingOptions.Builder().setStrategy(STRATEGY).build();
         mConnectionsClient
                 .startAdvertising(PLAYER_NAME, SERVICE_ID, mConnectionLifecycleCallback, options)
@@ -141,13 +142,14 @@ public class ConnectionManager {
         mConnectionsClient = Nearby.getConnectionsClient(context);
     }
 
-    public void sendRestartRequest(){
-        mConnectionsClient.sendPayload(mOpponentEndpointId, Payload.fromBytes(RESTART_REQUEST.getBytes(Charset.forName("UTF-8"))));
+    public void sendRestartRequest() {
+        mConnectionsClient.sendPayload(mOpponentEndpointId,
+                Payload.fromBytes(RESTART_REQUEST.getBytes(Charset.forName("UTF-8"))));
         mRestartRequestSent = true;
         announceRestart();
     }
 
-    public void startDiscovery(){
+    public void startDiscovery() {
         DiscoveryOptions options = new DiscoveryOptions.Builder().setStrategy(STRATEGY).build();
         mConnectionsClient
                 .startDiscovery(
@@ -172,19 +174,19 @@ public class ConnectionManager {
         mConnectionsClient.sendPayload(mOpponentEndpointId, Payload.fromBytes(new byte[]{(byte)row, (byte)col}));
     }
 
-    private void announceRestart(){
-        if(mRestartRequestSent && mRestartRequestReceived){
+    private void announceRestart() {
+        if(mRestartRequestSent && mRestartRequestReceived) {
             mRestartRequestSent = mRestartRequestReceived = false;
             EventBus.getDefault().post(new GameResetEvent());
         }
     }
 
-    public void connect(String endpointId, String endpointName){
+    public void connect(String endpointId, String endpointName) {
         mConnectionsClient.acceptConnection(endpointId, mPayloadCallback);
         mEndpointName = endpointName;
     }
 
-    public void rejectConnection(String endpointId){
+    public void rejectConnection(String endpointId) {
         mConnectionsClient.rejectConnection(endpointId);
     }
 
@@ -194,11 +196,7 @@ public class ConnectionManager {
         mConnectionsClient.stopAdvertising();
     }
 
-    public void stopDiscovery() {
-        mConnectionsClient.stopDiscovery();
-    }
+    public void stopDiscovery() { mConnectionsClient.stopDiscovery(); }
 
-    public void stopAdvertising() {
-        mConnectionsClient.stopAdvertising();
-    }
+    public void stopAdvertising() { mConnectionsClient.stopAdvertising(); }
 }

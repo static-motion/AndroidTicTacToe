@@ -12,7 +12,7 @@ public interface GameManagerContract {
 
     CellUpdatedEvent processOpponentMove(int id);
 
-    Winner checkForWinner();
+    Winner checkForWinner(int row, int col);
 
     void registerPlayers(String playerName, String opponentName);
 

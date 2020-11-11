@@ -1,6 +1,10 @@
 package com.example.tictactoe.models;
 
-public class Board implements com.example.tictactoe.interfaces.Board {
+import com.example.tictactoe.interfaces.BoardContract;
+
+import java.util.ArrayList;
+
+public class Board implements BoardContract {
     protected char[][] mBoard;
     protected boolean[][] mTaken;
     protected char DEFAULT_CHAR = '\u0000';
@@ -18,7 +22,19 @@ public class Board implements com.example.tictactoe.interfaces.Board {
         return instance;
     }
 
-    public void setMove(int row, int col, char figure){
+	public ArrayList<GridCell> availableMoves() {
+        ArrayList<GridCell> moves = new ArrayList<>();
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                if (!isTaken(row, col)){
+                    moves.add(new GridCell(row, col));
+                }
+            }
+        }
+        return  moves;
+    }
+
+    public void setMove(int row, int col, char figure) {
         mBoard[row][col] = figure;
         mTaken[row][col] = true;
     }

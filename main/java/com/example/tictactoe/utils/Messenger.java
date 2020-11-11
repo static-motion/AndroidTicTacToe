@@ -3,27 +3,23 @@ package com.example.tictactoe.utils;
 import android.content.Context;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
+
 public class Messenger {
 
-    private Context mContext;
+    private WeakReference<Context> mContext;
     private Toast mToast;
     private int mLength;
 
     public Messenger(Context context) {
-        this.mContext = context;
+        this.mContext = new WeakReference<>(context);
         mLength = Toast.LENGTH_SHORT;
     }
-
-    public Messenger(Context context, int length){
-        this.mContext = context;
-        mLength = length;
-    }
-
     public void alert(String message){
         if(mToast != null) {
             mToast.cancel();
         }
-        mToast = Toast.makeText(mContext, message, mLength);
+        mToast = Toast.makeText(mContext.get(), message, mLength);
         mToast.show();
     }
 

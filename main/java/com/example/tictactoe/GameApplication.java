@@ -12,8 +12,6 @@ public class GameApplication extends Application {
         setNickname();
     }
 
-
-
     private void setNickname() {
         SharedPreferencesManager manager = SharedPreferencesManager.createInstance(this);
         String nickname = manager.getPreference(SharedPreferencesManager.NICKNAME);
@@ -22,8 +20,6 @@ public class GameApplication extends Application {
             manager.savePreference(SharedPreferencesManager.NICKNAME, nickname);
         }
     }
-
-
 
     private String getRandomNumber() {
         return String.format("%04d", new Random().nextInt(9999));

@@ -25,12 +25,12 @@ public class MoveTask extends AsyncTask<Integer, CellUpdatedEvent, Void> {
             return null;
         }
         publishProgress(event);
-        checkForWinner();
+        checkForWinner(event.getCell().getRow(), event.getCell().getCol());
         return null;
     }
 
-    void checkForWinner() {
-        Winner winner = mManager.checkForWinner();
+    void checkForWinner(int row, int col) {
+        Winner winner = mManager.checkForWinner(row, col);
         if(winner != null || mManager.isFinished()){
             EventBus.getDefault().post(new WinnerEvent(winner));
         }

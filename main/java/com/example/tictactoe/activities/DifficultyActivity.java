@@ -45,15 +45,13 @@ public class DifficultyActivity extends AppCompatActivity implements View.OnClic
             case R.id.btn_diff_easy:
                 settings = DifficultySettings.EASY;
                 break;
-            case R.id.btn_diff_normal:
-                settings = DifficultySettings.NORMAL;
-                break;
             case R.id.btn_diff_hard:
                 settings = DifficultySettings.HARD;
                 break;
             case R.id.btn_diff_impossible:
                 settings = DifficultySettings.GODLIKE;
                 break;
+            case R.id.btn_diff_normal:
             default:
                 settings = DifficultySettings.NORMAL;
                 break;

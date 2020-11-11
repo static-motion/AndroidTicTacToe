@@ -25,7 +25,7 @@ import com.example.tictactoe.utils.game.MultiplayerGameManager;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class MultiplayerGameActivity extends GameActivity{
+public class MultiplayerGameActivity extends GameActivity {
 
     private final String TAG = getClass().getSimpleName();
     private ConnectionManager mConnectionManager;
@@ -56,7 +56,7 @@ public class MultiplayerGameActivity extends GameActivity{
     }
 
     protected void setupConnectivity() {
-        new Thread(){
+        new Thread() {
             @Override
             public void run() {
                 mIsHost = getIntent().getBooleanExtra("IS_HOST", false);
@@ -78,7 +78,7 @@ public class MultiplayerGameActivity extends GameActivity{
 
     @Subscribe
     @Override
-    public void onMoveProcessed(MoveProcessedEvent event){
+    public void onMoveProcessed(MoveProcessedEvent event) {
         mConnectionManager.sendMoveCoordinates(event.getRow(), event.getCol());
     }
 
@@ -103,7 +103,7 @@ public class MultiplayerGameActivity extends GameActivity{
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onSearchingForDevices(SearchingForDevicesEvent event){
+    public void onSearchingForDevices(SearchingForDevicesEvent event) {
         mSearchingDialog = new ProgressDialog(this, R.style.AppTheme_ProgressDialog);
         mSearchingDialog.setCancelable(true);
         mSearchingDialog.setIndeterminate(true);
@@ -135,13 +135,13 @@ public class MultiplayerGameActivity extends GameActivity{
     }
 
     @Subscribe
-    public void onDeviceFound(final DeviceFoundEvent event){
+    public void onDeviceFound(final DeviceFoundEvent event) {
         if (mSearchingDialog != null && mSearchingDialog.isShowing()) {
             mSearchingDialog.dismiss();
         }
         mConnectionManager.stopDiscovery();
         mConnectionManager.stopAdvertising();
-        new AlertDialog.Builder(this, R.style.AppTheme_Dialog)
+        new AlertDialog.Builder(this)
                 .setTitle("Accept connection to " + event.getEndpointName())
                 .setMessage("Confirm the code " + event.getAuthenticationToken() + " is also displayed on the other device.")
                 .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
@@ -161,19 +161,19 @@ public class MultiplayerGameActivity extends GameActivity{
     }
 
     @Subscribe
-    public void onDeviceConnected(DeviceConnectedEvent event){
+    public void onDeviceConnected(DeviceConnectedEvent event) {
         mOpponent.setText(event.getEndpointName());
         setupGame(event.getEndpointName());
     }
 
     @Subscribe
-    public void OnGameLobbyCreated(GameLobbyCreatedEvent event){
+    public void OnGameLobbyCreated(GameLobbyCreatedEvent event) {
         mMessenger.alert(event.getMessage());
     }
 
     @Subscribe
-    public void onPlayerDisconnected(PlayerDisconnectedEvent event){
-        new AlertDialog.Builder(this, R.style.AppTheme_Dialog)
+    public void onPlayerDisconnected(PlayerDisconnectedEvent event) {
+        new AlertDialog.Builder(this)
                 .setTitle(event.getPlayerName() + " has disconnected!")
                 .setMessage("You will be returned back to the menu.")
                 .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
