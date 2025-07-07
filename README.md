@@ -2,6 +2,9 @@
 
 A feature-rich Android application for playing Tic Tac Toe in both single-player and multiplayer modes. The game supports AI opponents and peer-to-peer multiplayer.
 
+
+*Note: This is a legacy project created during early Android development learning. While functional, the codebase reflects learning-stage coding practices and is maintained for historical/portfolio purposes.*
+
 ## Features
 
 - 🎮 Classic Tic Tac Toe gameplay
@@ -71,5 +74,3 @@ This project is licensed under the [MIT License](LICENSE).
 ## Credits
 
 Developed by Valentin Mihov.
-
-Note: This is a legacy project created during early Android development learning. While functional, the codebase reflects learning-stage coding practices and is maintained for historical/portfolio purposes.
